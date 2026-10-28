@@ -1,0 +1,2541 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Kedai Makan - Restaurant Adventure</title>
+  <!-- Google Font: Quicksand / QuickSans style -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@500;600;700;800&display=swap" rel="stylesheet">
+  
+  <style>
+    :root {
+      --font-main: 'Quicksand', 'QuickSans', system-ui, -apple-system, sans-serif;
+      
+      /* SPRINKLES PALETTE */
+      --sp-lilac: #E2C1F3;
+      --sp-lilac-dark: #B98ED1;
+      --sp-yellow: #F5E45F;
+      --sp-yellow-dark: #CBB930;
+      --sp-mint: #00C69E;
+      --sp-mint-dark: #009677;
+      --sp-orange: #FD7A39;
+      --sp-orange-dark: #D45315;
+      --sp-blue: #07BDFF;
+      --sp-blue-dark: #0092CC;
+      --sp-pink: #FE51B0;
+      --sp-pink-dark: #CB2882;
+      
+      --cream-bg: #F9F5EE;
+      --card-bg: rgba(255, 255, 255, 0.94);
+      --text-main: #3C261A;
+      --text-muted: #856958;
+    }
+
+    * {
+      font-family: var(--font-main) !important;
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      user-select: none;
+      -webkit-user-select: none;
+      -webkit-tap-highlight-color: transparent;
+      touch-action: manipulation;
+    }
+
+    input, button, select, textarea {
+      font-family: var(--font-main) !important;
+    }
+
+    html, body {
+      width: 100%;
+      height: 100dvh;
+      min-height: 100dvh;
+      overflow: hidden;
+      font-family: var(--font-main);
+      color: var(--text-main);
+      background-color: #F8F2EA;
+    }
+
+    #game-shell {
+      width: 100%;
+      height: 100dvh;
+      min-height: 100dvh;
+      overflow: hidden;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    #full-screen-background {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    .ui-layer {
+      position: relative;
+      z-index: 10;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    /* Screen Management */
+    .screen {
+      display: none;
+      width: 100%;
+      height: 100%;
+      flex-direction: column;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 16px;
+      overflow-y: auto;
+      overflow-x: hidden;
+      opacity: 0;
+      transition: opacity 0.25s ease-in-out;
+    }
+
+    .screen.active {
+      display: flex;
+      opacity: 1;
+    }
+
+    /* Top Bar Header with 3D Pills */
+    .top-bar {
+      width: 100%;
+      max-width: 1100px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 6px 12px;
+      background: rgba(255, 255, 255, 0.92);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      border-radius: 26px;
+      box-shadow: 0 6px 0 var(--sp-lilac), 0 10px 24px rgba(226, 193, 243, 0.35);
+      border: 3px solid #FFF;
+      margin-bottom: 8px;
+      z-index: 20;
+    }
+
+    .top-btn-group {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .btn-icon-text {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: #FFF;
+      border: 2px solid #FFF;
+      border-radius: 20px;
+      padding: 6px 14px;
+      font-weight: 800;
+      font-size: 15px;
+      cursor: pointer;
+      color: var(--text-main);
+      box-shadow: 0 4px 0 #EAD7CD;
+      transition: all 0.15s ease;
+      min-height: 44px;
+    }
+
+    .btn-icon-text:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 0 #DFC8BB;
+    }
+
+    .btn-icon-text:active {
+      transform: translateY(2px);
+      box-shadow: 0 1px 0 #DFC8BB;
+    }
+
+    .btn-home-accent {
+      border-color: #FFF;
+      background: #FFF;
+      box-shadow: 0 4px 0 var(--sp-orange-dark);
+      color: var(--sp-orange-dark);
+    }
+
+    .btn-how-accent {
+      border-color: #FFF;
+      background: #FFF;
+      box-shadow: 0 4px 0 var(--sp-blue-dark);
+      color: var(--sp-blue-dark);
+    }
+
+    .lang-btn {
+      background: linear-gradient(180deg, #FFF176 0%, var(--sp-yellow) 100%);
+      border: 2px solid #FFF;
+      box-shadow: 0 4px 0 var(--sp-yellow-dark);
+      color: #5D4A00;
+      font-weight: 800;
+      font-size: 14px;
+      border-radius: 20px;
+      padding: 6px 16px;
+      cursor: pointer;
+      min-height: 44px;
+      transition: transform 0.15s ease;
+    }
+    .lang-btn:active { transform: translateY(2px); }
+
+    .score-badge {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: linear-gradient(180deg, #FFF9D2 0%, var(--sp-yellow) 100%);
+      padding: 6px 16px;
+      border-radius: 22px;
+      border: 2.5px solid #FFF;
+      box-shadow: 0 4px 0 var(--sp-yellow-dark);
+      font-weight: 800;
+      font-size: 16px;
+      color: #634F02;
+    }
+
+    /* 3D Timbul Chunky Game Buttons */
+    .game-btn {
+      font-family: var(--font-main);
+      font-weight: 800;
+      font-size: 18px;
+      padding: 12px 24px;
+      border-radius: 26px;
+      border: 3.5px solid #FFF;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      text-align: center;
+      transition: transform 0.15s ease, box-shadow 0.15s ease;
+      min-height: 48px;
+      min-width: 140px;
+    }
+
+    .game-btn:active {
+      transform: translateY(3px) !important;
+    }
+
+    /* Sprinkles Button Color Variants */
+    .btn-primary {
+      background: linear-gradient(180deg, #FF955F 0%, var(--sp-orange) 100%);
+      color: #FFF;
+      box-shadow: 0 6px 0 var(--sp-orange-dark), 0 10px 18px rgba(253, 122, 57, 0.4);
+    }
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 0 var(--sp-orange-dark), 0 12px 22px rgba(253, 122, 57, 0.45);
+    }
+    .btn-primary:active { box-shadow: 0 2px 0 var(--sp-orange-dark); }
+
+    .btn-secondary {
+      background: linear-gradient(180deg, #51D3FF 0%, var(--sp-blue) 100%);
+      color: #FFF;
+      box-shadow: 0 6px 0 var(--sp-blue-dark), 0 10px 18px rgba(7, 189, 255, 0.4);
+    }
+    .btn-secondary:hover { transform: translateY(-2px); box-shadow: 0 8px 0 var(--sp-blue-dark); }
+    .btn-secondary:active { box-shadow: 0 2px 0 var(--sp-blue-dark); }
+
+    .btn-green {
+      background: linear-gradient(180deg, #3AE4C0 0%, var(--sp-mint) 100%);
+      color: #FFF;
+      box-shadow: 0 6px 0 var(--sp-mint-dark), 0 10px 18px rgba(0, 198, 158, 0.4);
+    }
+    .btn-green:hover { transform: translateY(-2px); }
+    .btn-green:active { box-shadow: 0 2px 0 var(--sp-mint-dark); }
+
+    .btn-pink {
+      background: linear-gradient(180deg, #FF7EC6 0%, var(--sp-pink) 100%);
+      color: #FFF;
+      box-shadow: 0 6px 0 var(--sp-pink-dark), 0 10px 18px rgba(254, 81, 176, 0.4);
+    }
+    .btn-pink:hover { transform: translateY(-2px); }
+    .btn-pink:active { box-shadow: 0 2px 0 var(--sp-pink-dark); }
+
+    .btn-yellow {
+      background: linear-gradient(180deg, #FFF176 0%, var(--sp-yellow) 100%);
+      color: #5D4A00;
+      box-shadow: 0 6px 0 var(--sp-yellow-dark), 0 10px 18px rgba(245, 228, 95, 0.45);
+    }
+    .btn-yellow:hover { transform: translateY(-2px); }
+    .btn-yellow:active { box-shadow: 0 2px 0 var(--sp-yellow-dark); }
+
+    .btn-lilac {
+      background: linear-gradient(180deg, #F0DBFB 0%, var(--sp-lilac) 100%);
+      color: #5B2B73;
+      box-shadow: 0 6px 0 var(--sp-lilac-dark), 0 10px 18px rgba(226, 193, 243, 0.5);
+    }
+    .btn-lilac:hover { transform: translateY(-2px); }
+    .btn-lilac:active { box-shadow: 0 2px 0 var(--sp-lilac-dark); }
+
+    /* 3D Timbul Cards */
+    .game-card {
+      background: var(--card-bg);
+      border-radius: 32px;
+      border: 4px solid #FFF;
+      box-shadow: 0 10px 0 var(--sp-lilac), 0 18px 36px rgba(185, 142, 209, 0.25);
+      padding: 22px;
+    }
+
+    /* Footer: Exactly as required */
+    .game-footer {
+      width: 100%;
+      text-align: center;
+      padding: 6px 10px;
+      font-size: 13px;
+      font-weight: 800;
+      color: #9C7760;
+      letter-spacing: 0.5px;
+      z-index: 20;
+      background: rgba(255, 255, 255, 0.78);
+      backdrop-filter: blur(6px);
+      border-top: 1px solid rgba(255, 255, 255, 0.9);
+    }
+
+    /* Home Screen Layout */
+    .home-content {
+      width: 100%;
+      max-width: 960px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      flex: 1;
+      gap: 16px;
+      z-index: 10;
+    }
+
+    .home-banner {
+      background: rgba(255, 255, 255, 0.95);
+      border: 4.5px solid #FFF;
+      box-shadow: 0 8px 0 var(--sp-lilac), 0 16px 32px rgba(226, 193, 243, 0.4);
+      border-radius: 34px;
+      padding: 18px 30px;
+      text-align: center;
+      max-width: 600px;
+      width: 90%;
+      animation: floatBanner 4s ease-in-out infinite alternate;
+    }
+
+    @keyframes floatBanner {
+      0% { transform: translateY(0); }
+      100% { transform: translateY(-7px); }
+    }
+
+    .home-title {
+      font-size: clamp(32px, 6.5vw, 46px);
+      font-weight: 800;
+      color: var(--sp-orange);
+      text-shadow: 2px 2px 0 #FFF, 3px 3px 0 var(--sp-yellow);
+      line-height: 1.1;
+      margin-bottom: 6px;
+    }
+
+    .home-subtitle {
+      font-size: clamp(15px, 3.5vw, 19px);
+      color: #7A5741;
+      font-weight: 700;
+    }
+
+    .home-buttons-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 14px;
+      width: 100%;
+      max-width: 500px;
+    }
+
+    .home-buttons-grid .btn-play {
+      grid-column: span 2;
+      font-size: 22px;
+      padding: 16px 28px;
+      border-radius: 32px;
+    }
+
+    .mascot-hero-box {
+      width: 120px;
+      height: 120px;
+      filter: drop-shadow(0 10px 14px rgba(254, 81, 176, 0.28));
+      animation: mascotBounce 3s ease-in-out infinite alternate;
+    }
+
+    @keyframes mascotBounce {
+      0% { transform: scale(1) translateY(0); }
+      100% { transform: scale(1.04) translateY(-10px); }
+    }
+
+    /* Collection Screen */
+    .collection-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+      gap: 12px;
+      width: 100%;
+      max-width: 1100px;
+      padding: 10px 4px 60px 4px;
+      overflow-y: auto;
+      max-height: 72vh;
+    }
+
+    .food-card {
+      background: #FFF;
+      border-radius: 24px;
+      border: 3.5px solid #FFF;
+      box-shadow: 0 5px 0 var(--sp-lilac), 0 8px 16px rgba(185, 142, 209, 0.18);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 12px 8px;
+      transition: transform 0.15s ease, box-shadow 0.15s ease;
+      cursor: pointer;
+    }
+
+    .food-card:hover {
+      transform: translateY(-4px) scale(1.04);
+      box-shadow: 0 8px 0 var(--sp-pink), 0 12px 20px rgba(254, 81, 176, 0.25);
+    }
+
+    .food-card-svg {
+      width: 64px;
+      height: 64px;
+      margin-bottom: 8px;
+      filter: drop-shadow(0 4px 6px rgba(0,0,0,0.1));
+    }
+
+    .food-card-name {
+      font-size: 13px;
+      font-weight: 800;
+      text-align: center;
+      color: #5D3E2E;
+      line-height: 1.2;
+    }
+
+    /* Main Restaurant Gameplay Scene */
+    .restaurant-stage {
+      width: 100%;
+      max-width: 1100px;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      position: relative;
+      overflow: hidden;
+      border-radius: 30px;
+      background: rgba(255, 255, 255, 0.45);
+      backdrop-filter: blur(4px);
+      padding: 10px;
+      gap: 8px;
+    }
+
+    .task-banner {
+      width: 100%;
+      background: #FFF;
+      border-radius: 24px;
+      border: 3.5px solid #FFF;
+      box-shadow: 0 6px 0 var(--sp-yellow), 0 10px 20px rgba(245, 228, 95, 0.35);
+      padding: 8px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      min-height: 54px;
+    }
+
+    .task-text {
+      font-size: clamp(16px, 3.8vw, 22px);
+      font-weight: 800;
+      color: var(--sp-orange-dark);
+    }
+
+    .customers-row {
+      display: flex;
+      justify-content: space-around;
+      align-items: flex-end;
+      width: 100%;
+      flex: 1;
+      min-height: 170px;
+      padding-bottom: 6px;
+      position: relative;
+    }
+
+    .customer-table-unit {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      position: relative;
+      width: clamp(130px, 28vw, 220px);
+      cursor: pointer;
+      transition: transform 0.2s ease, filter 0.2s ease;
+      border-radius: 28px;
+      padding: 6px;
+    }
+
+    .customer-table-unit.drag-target-hover {
+      transform: scale(1.08) translateY(-6px);
+      filter: drop-shadow(0 0 16px var(--sp-pink));
+    }
+
+    .order-bubble {
+      background: #FFF;
+      border-radius: 22px;
+      border: 3.5px solid var(--sp-orange);
+      padding: 6px 12px;
+      box-shadow: 0 6px 0 var(--sp-orange-dark), 0 8px 14px rgba(0,0,0,0.12);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-bottom: -10px;
+      z-index: 12;
+      animation: popOrder 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    @keyframes popOrder {
+      0% { transform: scale(0.6); opacity: 0; }
+      100% { transform: scale(1); opacity: 1; }
+    }
+
+    .order-item-icon {
+      width: 40px;
+      height: 40px;
+    }
+
+    .customer-chibi {
+      width: clamp(94px, 22vw, 146px);
+      height: clamp(102px, 24vw, 156px);
+      z-index: 5;
+      transition: transform 0.2s ease;
+      filter: drop-shadow(0 6px 12px rgba(80, 40, 10, 0.14));
+    }
+
+    .table-object {
+      width: 100%;
+      height: 60px;
+      margin-top: -34px;
+      z-index: 6;
+      position: relative;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .table-plate-dropzone {
+      width: 90px;
+      height: 48px;
+      border-radius: 50%;
+      background: radial-gradient(ellipse at center, #FFFFFF 0%, #F5EAE1 100%);
+      border: 3px dashed var(--sp-orange);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.08);
+      position: absolute;
+      top: 6px;
+      transition: all 0.2s ease;
+    }
+
+    /* Kitchen / Food Counter Area with 3D Timbul Tray */
+    .counter-tray-area {
+      width: 100%;
+      background: linear-gradient(180deg, #FFFFFF 0%, #FFF8F1 100%);
+      border-radius: 28px;
+      border: 4px solid #FFF;
+      box-shadow: 0 8px 0 var(--sp-lilac), 0 14px 26px rgba(226, 193, 243, 0.4);
+      padding: 10px 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      z-index: 15;
+    }
+
+    .counter-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .counter-label {
+      font-size: 14px;
+      font-weight: 800;
+      color: var(--sp-orange-dark);
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+    }
+
+    .counter-food-grid {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      align-items: center;
+      gap: 12px;
+      min-height: 80px;
+      padding: 4px;
+    }
+
+    .food-item-interactive {
+      width: clamp(74px, 16vw, 92px);
+      min-height: clamp(78px, 16vw, 96px);
+      background: #FFF;
+      border-radius: 22px;
+      border: 3.5px solid #FFF;
+      box-shadow: 0 5px 0 var(--sp-yellow), 0 8px 14px rgba(245, 228, 95, 0.35);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      cursor: grab;
+      position: relative;
+      touch-action: none;
+      transition: transform 0.15s ease, box-shadow 0.15s ease, opacity 0.15s ease;
+      padding: 6px 4px;
+    }
+
+    .food-svg-wrap {
+      width: clamp(44px, 10vw, 56px);
+      height: clamp(44px, 10vw, 56px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      pointer-events: none;
+    }
+
+    .food-svg-wrap svg,
+    .food-item-interactive svg,
+    .order-item-icon svg,
+    .food-card-svg svg,
+    .table-plate-dropzone svg,
+    #demo-food-box svg,
+    #drag-ghost svg {
+      width: 100% !important;
+      height: 100% !important;
+      display: block !important;
+      filter: drop-shadow(0 3px 4px rgba(0,0,0,0.12));
+    }
+
+    .food-item-name {
+      font-size: 11px;
+      font-weight: 800;
+      color: #4A3123;
+      text-align: center;
+      margin-top: 4px;
+      line-height: 1.15;
+      pointer-events: none;
+      word-break: break-word;
+      max-width: 80px;
+    }
+
+    .food-item-interactive:hover {
+      transform: translateY(-3px) scale(1.05);
+      box-shadow: 0 7px 0 var(--sp-pink), 0 10px 18px rgba(254, 81, 176, 0.35);
+    }
+
+    .food-item-interactive:active {
+      cursor: grabbing;
+      transform: scale(1.12);
+      box-shadow: 0 2px 0 var(--sp-yellow-dark);
+    }
+
+    .food-item-interactive.wobble {
+      animation: gentleWobble 0.45s ease-in-out;
+    }
+
+    @keyframes gentleWobble {
+      0%, 100% { transform: translateX(0); }
+      20% { transform: translateX(-8px) rotate(-6deg); }
+      40% { transform: translateX(8px) rotate(6deg); }
+      60% { transform: translateX(-5px) rotate(-3deg); }
+      80% { transform: translateX(5px) rotate(3deg); }
+    }
+
+    .food-item-interactive.celebrate {
+      animation: celebratePop 0.5s ease-out;
+    }
+
+    @keyframes celebratePop {
+      0% { transform: scale(0.9); }
+      50% { transform: scale(1.25); filter: drop-shadow(0 0 12px var(--sp-yellow)); }
+      100% { transform: scale(1); }
+    }
+
+    /* Feedback Banner Modal */
+    .feedback-toast {
+      position: absolute;
+      top: 45%;
+      left: 50%;
+      transform: translate(-50%, -50%) scale(0.7);
+      background: rgba(255, 255, 255, 0.98);
+      border-radius: 32px;
+      border: 5px solid #FFF;
+      box-shadow: 0 10px 0 var(--sp-yellow), 0 18px 40px rgba(0, 0, 0, 0.22);
+      padding: 16px 34px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+      z-index: 50;
+      opacity: 0;
+      pointer-events: none;
+      transition: all 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    .feedback-toast.show {
+      transform: translate(-50%, -50%) scale(1);
+      opacity: 1;
+    }
+
+    .feedback-text {
+      font-size: 28px;
+      font-weight: 800;
+      color: var(--sp-orange);
+    }
+
+    .stats-card-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+      width: 100%;
+      margin-top: 10px;
+    }
+
+    .stat-pill {
+      background: #FFF;
+      border: 2px solid #FFF;
+      border-radius: 22px;
+      box-shadow: 0 4px 0 var(--sp-lilac);
+      padding: 10px 14px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+    }
+
+    .stat-label {
+      font-size: 13px;
+      font-weight: 800;
+      color: var(--text-muted);
+    }
+
+    .stat-value {
+      font-size: 24px;
+      font-weight: 800;
+      color: var(--sp-orange);
+      margin-top: 2px;
+    }
+
+    /* Floating drag ghost */
+    #drag-ghost {
+      position: fixed;
+      pointer-events: none;
+      z-index: 1000;
+      width: 76px;
+      height: 76px;
+      display: none;
+      transform: translate(-50%, -50%) scale(1.15);
+      filter: drop-shadow(0 14px 22px rgba(0,0,0,0.3));
+    }
+
+    /* Responsiveness */
+    @media (max-width: 600px) {
+      .top-bar { padding: 4px 8px; border-radius: 20px; }
+      .btn-icon-text { padding: 4px 10px; font-size: 13px; min-height: 40px; }
+      .lang-btn { padding: 4px 10px; font-size: 13px; min-height: 40px; }
+      .score-badge { padding: 4px 10px; font-size: 14px; }
+      .home-buttons-grid { grid-template-columns: 1fr; }
+      .home-buttons-grid .btn-play { grid-column: span 1; }
+      .customer-table-unit { width: 31vw; }
+      .collection-grid { grid-template-columns: repeat(auto-fill, minmax(84px, 1fr)); }
+      .food-card-svg { width: 48px; height: 48px; }
+      .food-card-name { font-size: 11px; }
+    }
+  </style>
+</head>
+<body>
+  <div id="game-shell">
+    
+    <!-- 3D TIMBUL DIORAMA ANIMATED RESTAURANT BACKGROUND (SPRINKLES PALETTE) -->
+    <svg id="full-screen-background" viewBox="0 0 1440 900" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <!-- 3D Diorama Gradients -->
+        <linearGradient id="wall3DGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+          <stop offset="0%" stop-color="#FFFDF9"/>
+          <stop offset="60%" stop-color="#FBF4EA"/>
+          <stop offset="100%" stop-color="#F2E6D8"/>
+        </linearGradient>
+
+        <linearGradient id="floor3DGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+          <stop offset="0%" stop-color="#F4E8DB"/>
+          <stop offset="10%" stop-color="#EEDAC5"/>
+          <stop offset="50%" stop-color="#E5CCB2"/>
+          <stop offset="100%" stop-color="#D4B598"/>
+        </linearGradient>
+
+        <!-- Awning 3D Puffy Cylinders -->
+        <linearGradient id="awningPink3D" x1="0%" y1="0%" x2="100%" y2="0%">
+          <stop offset="0%" stop-color="#CB2882"/>
+          <stop offset="25%" stop-color="#FE51B0"/>
+          <stop offset="80%" stop-color="#FFA2D5"/>
+          <stop offset="100%" stop-color="#CB2882"/>
+        </linearGradient>
+
+        <linearGradient id="awningYellow3D" x1="0%" y1="0%" x2="100%" y2="0%">
+          <stop offset="0%" stop-color="#CBB930"/>
+          <stop offset="25%" stop-color="#F5E45F"/>
+          <stop offset="80%" stop-color="#FFF8B0"/>
+          <stop offset="100%" stop-color="#CBB930"/>
+        </linearGradient>
+
+        <!-- 3D Arch Alcoves -->
+        <linearGradient id="archLilac3D" x1="0%" y1="0%" x2="0%" y2="100%">
+          <stop offset="0%" stop-color="#E2C1F3"/>
+          <stop offset="80%" stop-color="#D4ABEB"/>
+          <stop offset="100%" stop-color="#B98ED1"/>
+        </linearGradient>
+
+        <linearGradient id="archBlue3D" x1="0%" y1="0%" x2="0%" y2="100%">
+          <stop offset="0%" stop-color="#E1F7FF"/>
+          <stop offset="60%" stop-color="#A5E8FF"/>
+          <stop offset="100%" stop-color="#07BDFF"/>
+        </linearGradient>
+
+        <linearGradient id="archMint3D" x1="0%" y1="0%" x2="0%" y2="100%">
+          <stop offset="0%" stop-color="#B3FCEE"/>
+          <stop offset="70%" stop-color="#55E9CC"/>
+          <stop offset="100%" stop-color="#00C69E"/>
+        </linearGradient>
+
+        <!-- Soft 3D Glow and Drop Shadow -->
+        <filter id="dioramaShadow" x="-10%" y="-10%" width="120%" height="130%">
+          <feDropShadow dx="0" dy="12" stdDeviation="10" flood-color="#8C5C38" flood-opacity="0.14"/>
+        </filter>
+
+        <filter id="softGlow" x="-20%" y="-20%" width="140%" height="140%">
+          <feGaussianBlur stdDeviation="8" result="blur" />
+          <feComposite in="SourceGraphic" in2="blur" operator="over" />
+        </filter>
+      </defs>
+
+      <!-- Diorama Wall Base with 3D Depth Top Rim -->
+      <rect x="0" y="0" width="1440" height="520" fill="url(#wall3DGrad)"/>
+      <rect x="0" y="0" width="1440" height="18" fill="#FFFFFF" opacity="0.9"/>
+      <line x1="0" y1="18" x2="1440" y2="18" stroke="#E6D3C2" stroke-width="3"/>
+
+      <!-- 4 RECESSED 3D ARCHES (Directly Inspired by Sprinkles Palette) -->
+      <!-- Arch 1: Lilac 3D Arch Alcove (Left) -->
+      <g filter="url(#dioramaShadow)">
+        <path d="M 80,110 A 100,100 0 0,1 280,110 L 280,380 L 80,380 Z" fill="url(#archLilac3D)"/>
+        <path d="M 75,110 A 105,105 0 0,1 285,110 L 285,385 L 75,385 Z" fill="none" stroke="#FFFFFF" stroke-width="10"/>
+        <!-- Chunky 3D Wooden Shelf Inside Lilac Arch -->
+        <rect x="100" y="270" width="160" height="16" rx="8" fill="#FFF" filter="url(#dioramaShadow)"/>
+        <rect x="120" y="225" width="34" height="45" rx="10" fill="#FE51B0"/>
+        <ellipse cx="137" cy="225" rx="17" ry="5" fill="#FFA5D6"/>
+        <circle cx="190" cy="245" r="20" fill="#F5E45F"/>
+        <!-- Cute Succulent Pot -->
+        <path d="M 215,250 L 245,250 L 240,270 L 220,270 Z" fill="#FD7A39"/>
+        <circle cx="230" cy="242" r="12" fill="#00C69E"/>
+      </g>
+
+      <!-- Arch 2: Sky Blue 3D Sunlit Window Arch (Mid-Left) -->
+      <g filter="url(#dioramaShadow)">
+        <path d="M 360,70 A 110,110 0 0,1 580,70 L 580,340 L 360,340 Z" fill="url(#archBlue3D)"/>
+        <path d="M 354,70 A 116,116 0 0,1 586,70 L 586,346 L 354,346 Z" fill="none" stroke="#FFFFFF" stroke-width="12"/>
+        
+        <!-- Animated 3D Clouds drifting outside the Blue Window -->
+        <g fill="#FFFFFF" opacity="0.9">
+          <ellipse cx="440" cy="140" rx="36" ry="20">
+            <animate attributeName="cx" values="440;460;440" dur="8s" repeatCount="indefinite"/>
+          </ellipse>
+          <ellipse cx="465" cy="130" rx="28" ry="18">
+            <animate attributeName="cx" values="465;485;465" dur="8s" repeatCount="indefinite"/>
+          </ellipse>
+          <ellipse cx="510" cy="200" rx="40" ry="22">
+            <animate attributeName="cx" values="510;490;510" dur="10s" repeatCount="indefinite"/>
+          </ellipse>
+        </g>
+        
+        <!-- Window Crossbar Grid with 3D White Bevel -->
+        <line x1="470" y1="70" x2="470" y2="340" stroke="#FFFFFF" stroke-width="8"/>
+        <line x1="360" y1="200" x2="580" y2="200" stroke="#FFFFFF" stroke-width="8"/>
+      </g>
+
+      <!-- Arch 3: Mint Green 3D Bakery Arch (Mid-Right) -->
+      <g filter="url(#dioramaShadow)">
+        <path d="M 860,70 A 110,110 0 0,1 1080,70 L 1080,340 L 860,340 Z" fill="url(#archMint3D)"/>
+        <path d="M 854,70 A 116,116 0 0,1 1086,70 L 1086,346 L 854,346 Z" fill="none" stroke="#FFFFFF" stroke-width="12"/>
+        
+        <!-- Wall Clock with animated swinging pendulum -->
+        <circle cx="970" cy="160" r="38" fill="#FFFFFF" stroke="#E2C1F3" stroke-width="6"/>
+        <circle cx="970" cy="160" r="4" fill="#FD7A39"/>
+        <line x1="970" y1="160" x2="970" y2="135" stroke="#3C261A" stroke-width="3" stroke-linecap="round"/>
+        <line x1="970" y1="160" x2="988" y2="160" stroke="#FE51B0" stroke-width="3" stroke-linecap="round"/>
+        <!-- Animated Pendulum -->
+        <g>
+          <line x1="970" y1="198" x2="970" y2="240" stroke="#FD7A39" stroke-width="3"/>
+          <circle cx="970" cy="242" r="8" fill="#F5E45F"/>
+          <animateTransform attributeName="transform" type="rotate" values="-10 970 198; 10 970 198; -10 970 198" dur="2s" repeatCount="indefinite"/>
+        </g>
+      </g>
+
+      <!-- Arch 4: Orange / Coral 3D Arch Alcove (Right) -->
+      <g filter="url(#dioramaShadow)">
+        <path d="M 1160,110 A 100,100 0 0,1 1360,110 L 1360,380 L 1160,380 Z" fill="#FFE5D9"/>
+        <path d="M 1155,110 A 105,105 0 0,1 1365,110 L 1365,385 L 1155,385 Z" fill="none" stroke="#FFFFFF" stroke-width="10"/>
+        <!-- Cute Framed Artwork of Ice Cream -->
+        <rect x="1200" y="160" width="120" height="140" rx="18" fill="#FFF" stroke="#FD7A39" stroke-width="5"/>
+        <polygon points="1245,260 1275,260 1260,290" fill="#F5E45F"/>
+        <circle cx="1260" cy="240" r="22" fill="#FE51B0"/>
+        <circle cx="1260" cy="216" r="6" fill="#FD7A39"/>
+      </g>
+
+      <!-- 3D CHUNKY STRIPED AWNING (Spanning over Center Diorama) -->
+      <g filter="url(#dioramaShadow)">
+        <!-- Dropshadow under Awning -->
+        <path d="M 460,40 L 980,40 L 960,115 L 480,115 Z" fill="#000000" opacity="0.08"/>
+        <!-- Awning Scallops/Stripes with 3D Gradients -->
+        <path d="M 480,20 L 540,20 L 530,100 L 470,100 Z" fill="url(#awningPink3D)"/>
+        <path d="M 540,20 L 600,20 L 590,100 L 530,100 Z" fill="url(#awningYellow3D)"/>
+        <path d="M 600,20 L 660,20 L 650,100 L 590,100 Z" fill="url(#awningPink3D)"/>
+        <path d="M 660,20 L 720,20 L 710,100 L 650,100 Z" fill="url(#awningYellow3D)"/>
+        <path d="M 720,20 L 780,20 L 770,100 L 710,100 Z" fill="url(#awningPink3D)"/>
+        <path d="M 780,20 L 840,20 L 830,100 L 770,100 Z" fill="url(#awningYellow3D)"/>
+        <path d="M 840,20 L 900,20 L 890,100 L 830,100 Z" fill="url(#awningPink3D)"/>
+        <path d="M 900,20 L 960,20 L 950,100 L 890,100 Z" fill="url(#awningYellow3D)"/>
+        <!-- Bottom Rolled Scallop Border -->
+        <line x1="470" y1="100" x2="950" y2="100" stroke="#FFFFFF" stroke-width="8" stroke-linecap="round"/>
+      </g>
+
+      <!-- 3D Puffy Hanging Pendant Lamps with Swinging Animation -->
+      <g>
+        <!-- Lamp 1 (Lilac) -->
+        <g>
+          <line x1="320" y1="0" x2="320" y2="80" stroke="#7A5741" stroke-width="3"/>
+          <path d="M 290,105 Q 320,75 350,105 Z" fill="#E2C1F3" stroke="#B98ED1" stroke-width="3"/>
+          <circle cx="320" cy="110" r="16" fill="#FFF" opacity="0.9" filter="url(#softGlow)"/>
+          <animateTransform attributeName="transform" type="rotate" values="-2 320 0; 2 320 0; -2 320 0" dur="4s" repeatCount="indefinite"/>
+        </g>
+        <!-- Lamp 2 (Mint) -->
+        <g>
+          <line x1="1120" y1="0" x2="1120" y2="80" stroke="#7A5741" stroke-width="3"/>
+          <path d="M 1090,105 Q 1120,75 1150,105 Z" fill="#00C69E" stroke="#009677" stroke-width="3"/>
+          <circle cx="1120" cy="110" r="16" fill="#FFF" opacity="0.9" filter="url(#softGlow)"/>
+          <animateTransform attributeName="transform" type="rotate" values="2 1120 0; -2 1120 0; 2 1120 0" dur="4.5s" repeatCount="indefinite"/>
+        </g>
+      </g>
+
+      <!-- Animated Floating Pastel Sprinkles & Sparkles -->
+      <g opacity="0.75">
+        <circle cx="240" cy="220" r="4.5" fill="#FE51B0">
+          <animate attributeName="cy" values="220;190;220" dur="4s" repeatCount="indefinite"/>
+          <animate attributeName="opacity" values="0.4;1;0.4" dur="4s" repeatCount="indefinite"/>
+        </circle>
+        <circle cx="340" cy="280" r="4" fill="#F5E45F">
+          <animate attributeName="cy" values="280;250;280" dur="3.5s" repeatCount="indefinite"/>
+        </circle>
+        <polygon points="620,180 625,192 638,192 628,200 632,212 620,204 608,212 612,200 602,192 615,192" fill="#07BDFF">
+          <animateTransform attributeName="transform" type="rotate" values="0 620 196; 360 620 196" dur="12s" repeatCount="indefinite"/>
+          <animate attributeName="opacity" values="0.5;0.9;0.5" dur="3s" repeatCount="indefinite"/>
+        </polygon>
+        <circle cx="1040" cy="210" r="5" fill="#00C69E">
+          <animate attributeName="cy" values="210;180;210" dur="4.2s" repeatCount="indefinite"/>
+        </circle>
+        <circle cx="1180" cy="260" r="4" fill="#E2C1F3">
+          <animate attributeName="cy" values="260;230;260" dur="3.8s" repeatCount="indefinite"/>
+        </circle>
+      </g>
+
+      <!-- DIORAMA 3D FLOOR BASE -->
+      <rect x="0" y="480" width="1440" height="420" fill="url(#floor3DGrad)"/>
+
+      <!-- 3D Bevel Edge between Wall and Floor -->
+      <rect x="0" y="474" width="1440" height="12" fill="#FFF8F0"/>
+      <rect x="0" y="486" width="1440" height="8" fill="#DDBFA6"/>
+
+      <!-- 3D Perspective Isometric Tile Lines (Gentle Warm Contrast) -->
+      <g stroke="#CBA88A" stroke-width="2.5" opacity="0.38">
+        <line x1="0" y1="520" x2="1440" y2="520"/>
+        <line x1="0" y1="570" x2="1440" y2="570"/>
+        <line x1="0" y1="635" x2="1440" y2="635"/>
+        <line x1="0" y1="715" x2="1440" y2="715"/>
+        <line x1="0" y1="810" x2="1440" y2="810"/>
+      </g>
+
+      <!-- 3 CUTE PASTEL RUGS Under Customer Tables (Sprinkles Colors) -->
+      <!-- Left Table: Lilac Rug with White Scallops -->
+      <g filter="url(#dioramaShadow)">
+        <ellipse cx="280" cy="565" rx="195" ry="46" fill="#F4E3FD"/>
+        <ellipse cx="280" cy="565" rx="185" ry="40" fill="none" stroke="#E2C1F3" stroke-width="5" stroke-dasharray="10 8"/>
+      </g>
+
+      <!-- Center Table: Mint Green Rug with White Scallops -->
+      <g filter="url(#dioramaShadow)">
+        <ellipse cx="720" cy="565" rx="205" ry="48" fill="#E0FAF4"/>
+        <ellipse cx="720" cy="565" rx="195" ry="42" fill="none" stroke="#00C69E" stroke-width="5" stroke-dasharray="10 8"/>
+      </g>
+
+      <!-- Right Table: Butter Yellow & Pink Rug -->
+      <g filter="url(#dioramaShadow)">
+        <ellipse cx="1160" cy="565" rx="195" ry="46" fill="#FFFCE1"/>
+        <ellipse cx="1160" cy="565" rx="185" ry="40" fill="none" stroke="#F5E45F" stroke-width="5" stroke-dasharray="10 8"/>
+      </g>
+    </svg>
+
+    <!-- Floating Ghost for Pointer Drag -->
+    <div id="drag-ghost"></div>
+
+    <!-- UI Overlay Layer -->
+    <div class="ui-layer">
+      
+      <!-- Top Navigation Bar -->
+      <header class="top-bar">
+        <div class="top-btn-group">
+          <!-- Back / Home Button -->
+          <button id="nav-home-btn" class="btn-icon-text btn-home-accent" aria-label="Kembali ke Utama">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+              <polyline points="9 22 9 12 15 12 15 22"></polyline>
+            </svg>
+            <span id="nav-home-text">Utama</span>
+          </button>
+
+          <!-- Instructions / How to play -->
+          <button id="nav-how-btn" class="btn-icon-text btn-how-accent" aria-label="Cara Main">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="10"></circle>
+              <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path>
+              <line x1="12" y1="17" x2="12.01" y2="17"></line>
+            </svg>
+            <span id="nav-how-text">Cara Main</span>
+          </button>
+        </div>
+
+        <!-- Center Score / Status -->
+        <div id="score-display-box" class="score-badge" style="display:none;">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="#F5E45F" stroke="#CBB930" stroke-width="2">
+            <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+          </svg>
+          <span id="game-score-label">Markah: </span>
+          <span id="game-score-val">0</span>
+        </div>
+
+        <div class="top-btn-group">
+          <!-- Language Switcher Button -->
+          <button id="lang-toggle-btn" class="lang-btn" aria-label="Tukar Bahasa / Switch Language">
+            <span id="current-lang-text">EN</span>
+          </button>
+        </div>
+      </header>
+
+      <!-- SCREEN 1: HOME SCREEN -->
+      <section id="screen-home" class="screen active">
+        <div class="home-content">
+          <div class="mascot-hero-box" id="home-mascot-container"></div>
+
+          <div class="home-banner">
+            <h1 class="home-title" id="home-title-text">Kedai Makan</h1>
+            <p class="home-subtitle" id="home-sub-text">Jom sediakan pesanan makanan yang betul!</p>
+          </div>
+
+          <div class="home-buttons-grid">
+            <button id="btn-start-game" class="game-btn btn-primary btn-play">
+              <svg width="26" height="26" viewBox="0 0 24 24" fill="#FFF">
+                <polygon points="5 3 19 12 5 21 5 3"></polygon>
+              </svg>
+              <span id="txt-btn-play">Mula Main</span>
+            </button>
+
+            <button id="btn-nav-profile" class="game-btn btn-secondary">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#FFF" stroke-width="2.6">
+                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                <circle cx="12" cy="7" r="4"></circle>
+              </svg>
+              <span id="txt-btn-profile">Profil Pemain</span>
+            </button>
+
+            <button id="btn-nav-collection" class="game-btn btn-green">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#FFF" stroke-width="2.6">
+                <rect x="3" y="3" width="7" height="7" rx="2"></rect>
+                <rect x="14" y="3" width="7" height="7" rx="2"></rect>
+                <rect x="14" y="14" width="7" height="7" rx="2"></rect>
+                <rect x="3" y="14" width="7" height="7" rx="2"></rect>
+              </svg>
+              <span id="txt-btn-collection">Koleksi</span>
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- SCREEN 2: SESSION SELECTION -->
+      <section id="screen-session" class="screen">
+        <div class="game-card" style="max-width: 500px; width: 92%; margin: auto; text-align: center;">
+          <h2 id="session-title-text" style="font-size: 28px; font-weight:800; color: var(--sp-orange); margin-bottom: 8px;">Pilih Permainan</h2>
+          <p id="session-desc-text" style="font-size: 15px; color: var(--text-muted); margin-bottom: 20px;">Pilih bilangan pesanan yang ingin dimainkan:</p>
+          
+          <div style="display:flex; flex-direction:column; gap:12px; width: 100%;">
+            <button class="game-btn btn-yellow session-pick-btn" data-count="5">
+              <span class="session-label-5">5 Pesanan</span>
+            </button>
+            <button class="game-btn btn-primary session-pick-btn" data-count="10">
+              <span class="session-label-10">10 Pesanan</span>
+            </button>
+            <button class="game-btn btn-pink session-pick-btn" data-count="20">
+              <span class="session-label-20">20 Pesanan</span>
+            </button>
+            <button class="game-btn btn-green session-pick-btn" data-count="999">
+              <span class="session-label-free">Main Bebas</span>
+            </button>
+          </div>
+
+          <div style="margin-top: 20px;">
+            <button id="btn-back-from-session" class="btn-icon-text" style="margin: auto;">
+              <span class="txt-back-home">Kembali ke Utama</span>
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- SCREEN 3: INSTRUCTIONS SCREEN -->
+      <section id="screen-instructions" class="screen">
+        <div class="game-card" style="max-width: 600px; width: 92%; margin: auto; text-align: center; display:flex; flex-direction:column; align-items:center; gap: 14px;">
+          <div style="width: 80px; height: 80px;" id="instructions-mascot-box"></div>
+          <h2 id="how-title-text" style="font-size: 28px; font-weight:800; color: var(--sp-orange);">Cara Main</h2>
+          
+          <div style="background: #FFFDF7; border: 3px dashed var(--sp-yellow); border-radius: 22px; padding: 14px; width: 100%;">
+            <p id="how-desc-text" style="font-size: 18px; font-weight:700; color: var(--sp-orange-dark); line-height: 1.4;">
+              Cari makanan yang diminta dan seret makanan tersebut kepada pelanggan!
+            </p>
+          </div>
+
+          <div style="display:flex; align-items:center; justify-content:center; gap:16px; width:100%; margin: 10px 0;">
+            <div style="background:#FFF; padding:10px; border-radius:20px; border:3px solid var(--sp-yellow); box-shadow:0 4px 10px rgba(0,0,0,0.06);" id="demo-food-box"></div>
+            <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="var(--sp-pink)" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="5" y1="12" x2="19" y2="12"></line>
+              <polyline points="12 5 19 12 12 19"></polyline>
+            </svg>
+            <div style="background:#FFF; padding:10px; border-radius:20px; border:3px solid var(--sp-mint); box-shadow:0 4px 10px rgba(0,0,0,0.06);" id="demo-target-box"></div>
+          </div>
+
+          <button id="btn-start-from-how" class="game-btn btn-primary" style="width: 100%; max-width: 260px;">
+            <span id="txt-how-start">Mula Main</span>
+          </button>
+        </div>
+      </section>
+
+      <!-- SCREEN 4: MAIN GAMEPLAY SCREEN -->
+      <section id="screen-gameplay" class="screen">
+        <div class="restaurant-stage">
+          
+          <!-- Dynamic Task Instruction Banner -->
+          <div class="task-banner">
+            <div style="display: flex; align-items: center; gap: 10px;">
+              <div style="width: 44px; height: 44px;" id="gameplay-mascot-mini"></div>
+              <span id="current-task-prompt" class="task-text">Sediakan pesanan untuk pelanggan!</span>
+            </div>
+            <div id="task-counter-chip" style="background:#FFF1E8; color:var(--sp-orange-dark); font-weight:800; font-size:15px; padding:4px 14px; border-radius:18px; white-space:nowrap; border:2px solid #FFF;">
+              1 / 5
+            </div>
+          </div>
+
+          <!-- Customer Zone: Cute Cat, Tiger, Lion Chibi Characters -->
+          <div class="customers-row" id="customers-container"></div>
+
+          <!-- Food Counter Area -->
+          <div class="counter-tray-area">
+            <div class="counter-header">
+              <span class="counter-label" id="counter-title-text">Kaunter Makanan</span>
+              <span id="counter-tip-text" style="font-size:13px; font-weight:800; color:var(--text-muted);">Tekan atau seret makanan</span>
+            </div>
+            <div class="counter-food-grid" id="food-interactive-tray"></div>
+          </div>
+
+          <!-- Feedback Floating Toast -->
+          <div id="feedback-toast" class="feedback-toast">
+            <div id="feedback-icon" style="width:64px; height:64px;"></div>
+            <span id="feedback-msg" class="feedback-text">Hebat!</span>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- SCREEN 5: RESULT SCREEN -->
+      <section id="screen-result" class="screen">
+        <div class="game-card" style="max-width: 520px; width: 92%; margin: auto; text-align: center; display:flex; flex-direction:column; align-items:center; gap: 14px;">
+          <div style="width: 100px; height: 100px;" id="result-mascot-box"></div>
+          
+          <h2 id="result-congrats-text" style="font-size: 32px; font-weight: 800; color: var(--sp-orange);">Syabas!</h2>
+          <p id="result-sub-text" style="font-size: 16px; font-weight: 700; color: var(--text-muted);">Kamu telah berjaya membantu di Kedai Makan!</p>
+
+          <div class="stats-card-grid" style="width: 100%;">
+            <div class="stat-pill">
+              <span class="stat-label" id="lbl-res-score">Jumlah Markah</span>
+              <span class="stat-value" id="res-score-val">0</span>
+            </div>
+            <div class="stat-pill">
+              <span class="stat-label" id="lbl-res-answered">Pesanan Selesai</span>
+              <span class="stat-value" id="res-answered-val">0</span>
+            </div>
+            <div class="stat-pill">
+              <span class="stat-label" id="lbl-res-correct">Pesanan Betul</span>
+              <span class="stat-value" id="res-correct-val">0</span>
+            </div>
+            <div class="stat-pill">
+              <span class="stat-label" id="lbl-res-acc">Ketepatan</span>
+              <span class="stat-value" id="res-acc-val">100%</span>
+            </div>
+          </div>
+
+          <div style="display:flex; gap:12px; width:100%; margin-top: 10px;">
+            <button id="btn-play-again" class="game-btn btn-primary" style="flex:1;">
+              <span id="txt-play-again">Main Lagi</span>
+            </button>
+            <button id="btn-result-home" class="game-btn btn-secondary" style="flex:1;">
+              <span id="txt-result-home">Kembali ke Utama</span>
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- SCREEN 6: PLAYER PROFILE -->
+      <section id="screen-profile" class="screen">
+        <div class="game-card" style="max-width: 580px; width: 92%; margin: auto;">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 12px;">
+            <h2 id="prof-header-text" style="font-size: 26px; font-weight:800; color: var(--sp-orange);">Profil Pemain</h2>
+            <button class="btn-icon-text btn-close-profile"><span class="txt-close">Tutup</span></button>
+          </div>
+
+          <div class="stats-card-grid">
+            <div class="stat-pill">
+              <span class="stat-label" id="p-lbl-played">Permainan Dimainkan</span>
+              <span class="stat-value" id="p-val-played">0</span>
+            </div>
+            <div class="stat-pill">
+              <span class="stat-label" id="p-lbl-tasks">Pesanan Disediakan</span>
+              <span class="stat-value" id="p-val-tasks">0</span>
+            </div>
+            <div class="stat-pill">
+              <span class="stat-label" id="p-lbl-correct">Pesanan Betul</span>
+              <span class="stat-value" id="p-val-correct">0</span>
+            </div>
+            <div class="stat-pill">
+              <span class="stat-label" id="p-lbl-best">Markah Terbaik</span>
+              <span class="stat-value" id="p-val-best">0</span>
+            </div>
+          </div>
+
+          <div style="margin-top: 18px; text-align: left;">
+            <span class="stat-label" id="p-lbl-recent">Aktiviti Terkini</span>
+            <div id="recent-activity-box" style="background:#FFF9F4; border-radius:18px; padding:12px; border:2px solid var(--sp-lilac); margin-top:6px; font-size:14px; font-weight:700; color:#5D4037;">
+              Tiada rekod aktiviti lagi.
+            </div>
+          </div>
+
+          <div style="margin-top: 20px; text-align: center;">
+            <button class="game-btn btn-secondary btn-close-profile" style="min-width: 180px;">
+              <span class="txt-back-home">Kembali ke Utama</span>
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- SCREEN 7: COLLECTION (FOODS GALLERY) -->
+      <section id="screen-collection" class="screen">
+        <div style="width: 100%; max-width: 1100px; display: flex; flex-direction: column; align-items: center; flex: 1; overflow: hidden;">
+          <div style="width: 100%; display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+            <div style="display: flex; align-items: center; gap: 10px;">
+              <div style="width: 44px; height: 44px;" id="collection-mascot-box"></div>
+              <h2 id="coll-header-text" style="font-size: 26px; font-weight: 800; color: var(--sp-orange);">Koleksi</h2>
+            </div>
+            <button class="btn-icon-text btn-close-profile">
+              <span class="txt-back-home">Kembali ke Utama</span>
+            </button>
+          </div>
+
+          <div class="collection-grid" id="collection-gallery-grid"></div>
+        </div>
+      </section>
+
+    </div>
+
+    <!-- MANDATORY FOOTER: EXACT TEXT IN BOTH LANGUAGES -->
+    <footer class="game-footer">
+      Kinder Klub | All Rights Reserved
+    </footer>
+  </div>
+
+  <script>
+    // Storage Key
+    const PROFILE_KEY = 'kinderKlub_kedaiMakan_playerProfile';
+
+    // Current State
+    let currentLang = 'ms';
+    let currentSessionGoal = 5;
+    let questionsAnsweredInSession = 0;
+    let correctAnswersInSession = 0;
+    let currentScore = 0;
+    let activeTask = null;
+    let currentDragFoodId = null;
+    let isTransitioning = false;
+
+    // LOCALIZATION DICTIONARY
+    const i18n = {
+      ms: {
+        navHome: "Utama",
+        navHow: "Cara Main",
+        scoreLabel: "Markah: ",
+        homeTitle: "Kedai Makan",
+        homeSubtitle: "Jom sediakan pesanan makanan yang betul!",
+        btnPlay: "Mula Main",
+        btnProfile: "Profil Pemain",
+        btnCollection: "Koleksi",
+        sessionTitle: "Pilih Permainan",
+        sessionDesc: "Pilih bilangan pesanan yang ingin dimainkan:",
+        session5: "5 Pesanan",
+        session10: "10 Pesanan",
+        session20: "20 Pesanan",
+        sessionFree: "Main Bebas",
+        backHome: "Kembali ke Utama",
+        close: "Tutup",
+        howTitle: "Cara Main",
+        howDesc: "Cari makanan yang diminta dan seret makanan tersebut kepada pelanggan!",
+        counterTitle: "Kaunter Makanan",
+        counterTip: "Tekan atau seret makanan",
+        resultCongrats: "Syabas!",
+        resultSub: "Kamu telah berjaya membantu di Kedai Makan!",
+        resScore: "Jumlah Markah",
+        resAnswered: "Pesanan Selesai",
+        resCorrect: "Pesanan Betul",
+        resAcc: "Ketepatan",
+        playAgain: "Main Lagi",
+        profHeader: "Profil Pemain",
+        pPlayed: "Permainan Dimainkan",
+        pTasks: "Pesanan Disediakan",
+        pCorrect: "Pesanan Betul",
+        pBest: "Markah Terbaik",
+        pRecent: "Aktiviti Terkini",
+        noActivity: "Tiada rekod aktiviti lagi.",
+        collHeader: "Koleksi",
+        tryAgain: "Cuba lagi!",
+        great: "Hebat!",
+        orderRequestPrefix: "Saya nak ",
+        orderRequestSuffix: "!",
+        prepareOrder: "Sediakan pesanan untuk pelanggan!",
+        findPrefix: "Cari ",
+        putPrefix: "Letak ",
+        whichOrder: "Mana pesanan yang betul?",
+        matchPrompt: "Seret setiap makanan kepada pelanggan yang betul!"
+      },
+      en: {
+        navHome: "Home",
+        navHow: "How to Play",
+        scoreLabel: "Score: ",
+        homeTitle: "Restaurant Adventure",
+        homeSubtitle: "Let’s prepare the right food orders!",
+        btnPlay: "Start Playing",
+        btnProfile: "Player Profile",
+        btnCollection: "Collection",
+        sessionTitle: "Choose a Game",
+        sessionDesc: "Choose how many orders you want to play:",
+        session5: "5 Orders",
+        session10: "10 Orders",
+        session20: "20 Orders",
+        sessionFree: "Free Play",
+        backHome: "Back to Home",
+        close: "Close",
+        howTitle: "How to Play",
+        howDesc: "Find the requested food and drag it to the customer!",
+        counterTitle: "Food Counter",
+        counterTip: "Tap or drag food",
+        resultCongrats: "Well Done!",
+        resultSub: "You successfully helped at the Restaurant Adventure!",
+        resScore: "Total Score",
+        resAnswered: "Orders Completed",
+        resCorrect: "Correct Orders",
+        resAcc: "Accuracy",
+        playAgain: "Play Again",
+        profHeader: "Player Profile",
+        pPlayed: "Games Played",
+        pTasks: "Orders Prepared",
+        pCorrect: "Correct Orders",
+        pBest: "Best Score",
+        pRecent: "Recent Activity",
+        noActivity: "No activity recorded yet.",
+        collHeader: "Collection",
+        tryAgain: "Try again!",
+        great: "Great!",
+        orderRequestPrefix: "I want ",
+        orderRequestSuffix: "!",
+        prepareOrder: "Prepare the customer's order!",
+        findPrefix: "Find ",
+        putPrefix: "Put ",
+        whichOrder: "Which order is correct?",
+        matchPrompt: "Drag each food to the right customer!"
+      }
+    };
+
+    // EXACT POOL OF FOOD ITEMS (48 Items: Udang, Roti, Peha Ayam removed)
+    const FOOD_ITEMS = [
+      { id: 'apple', ms: 'Epal', en: 'Apple', svg: `<svg viewBox="0 0 100 100"><path d="M50,22 Q52,10 60,6" fill="none" stroke="#5D4037" stroke-width="4" stroke-linecap="round"/><path d="M54,12 Q68,8 65,18 Q55,20 54,12" fill="#4CAF50"/><path d="M50,26 C36,20 18,26 18,50 C18,74 38,90 50,90 C62,90 82,74 82,50 C82,26 64,20 50,26 Z" fill="#E53935"/><path d="M28,38 Q36,32 44,34" fill="none" stroke="#FFCDD2" stroke-width="3" stroke-linecap="round" opacity="0.6"/></svg>` },
+      { id: 'banana', ms: 'Pisang', en: 'Banana', svg: `<svg viewBox="0 0 100 100"><path d="M20,70 C30,85 65,85 82,45 C86,36 85,25 83,20 C81,22 75,28 72,32 C58,58 35,62 20,70 Z" fill="#FDD835"/><path d="M83,20 L87,17" stroke="#6D4C41" stroke-width="4" stroke-linecap="round"/><path d="M20,70 L16,74" stroke="#6D4C41" stroke-width="3" stroke-linecap="round"/><path d="M35,67 C48,70 68,64 78,40" fill="none" stroke="#FFF59D" stroke-width="2.5" stroke-linecap="round"/></svg>` },
+      { id: 'orange', ms: 'Oren', en: 'Orange', svg: `<svg viewBox="0 0 100 100"><circle cx="50" cy="54" r="36" fill="#FB8C00"/><path d="M50,18 Q52,12 56,10" fill="none" stroke="#5D4037" stroke-width="3.5" stroke-linecap="round"/><path d="M52,14 Q62,10 60,18 Q54,18 52,14" fill="#43A047"/><circle cx="50" cy="54" r="32" fill="none" stroke="#FFA726" stroke-width="2" stroke-dasharray="2,5"/><ellipse cx="38" cy="40" rx="4" ry="7" fill="#FFE082" opacity="0.5" transform="rotate(-30 38 40)"/></svg>` },
+      { id: 'strawberry', ms: 'Stroberi', en: 'Strawberry', svg: `<svg viewBox="0 0 100 100"><path d="M50,88 C32,76 22,62 22,44 C22,30 34,26 50,28 C66,26 78,30 78,44 C78,62 68,76 50,88 Z" fill="#E53935"/><path d="M50,28 L50,16" stroke="#2E7D32" stroke-width="4" stroke-linecap="round"/><path d="M38,24 Q50,28 62,24 Q50,34 38,24" fill="#4CAF50"/><g fill="#FFF9C4" opacity="0.85"><circle cx="36" cy="42" r="1.5"/><circle cx="50" cy="40" r="1.5"/><circle cx="64" cy="42" r="1.5"/><circle cx="42" cy="54" r="1.5"/><circle cx="58" cy="54" r="1.5"/><circle cx="50" cy="68" r="1.5"/></g></svg>` },
+      { id: 'watermelon', ms: 'Tembikai', en: 'Watermelon', svg: `<svg viewBox="0 0 100 100"><path d="M15,40 C20,78 50,88 85,85 L85,40 Z" fill="#2E7D32"/><path d="M18,42 C24,74 50,83 82,81 L82,42 Z" fill="#C8E6C9"/><path d="M22,44 C28,70 50,78 78,76 L78,44 Z" fill="#E53935"/><g fill="#212121"><ellipse cx="40" cy="54" rx="2" ry="3"/><ellipse cx="56" cy="56" rx="2" ry="3"/><ellipse cx="68" cy="52" rx="2" ry="3"/><ellipse cx="48" cy="66" rx="2" ry="3"/></g></svg>` },
+      { id: 'grapes', ms: 'Anggur', en: 'Grapes', svg: `<svg viewBox="0 0 100 100"><path d="M50,20 Q54,10 60,8" fill="none" stroke="#5D4037" stroke-width="3" stroke-linecap="round"/><path d="M52,16 Q65,14 62,22 Z" fill="#43A047"/><g fill="#7B1FA2"><circle cx="42" cy="32" r="10"/><circle cx="58" cy="32" r="10"/><circle cx="34" cy="46" r="10"/><circle cx="50" cy="46" r="10"/><circle cx="66" cy="46" r="10"/><circle cx="42" cy="60" r="10"/><circle cx="58" cy="60" r="10"/><circle cx="50" cy="74" r="10"/></g></svg>` },
+      { id: 'mango', ms: 'Mangga', en: 'Mango', svg: `<svg viewBox="0 0 100 100"><path d="M48,16 L48,10" stroke="#5D4037" stroke-width="3.5" stroke-linecap="round"/><path d="M50,18 C30,18 20,38 24,62 C28,82 52,90 68,82 C82,72 82,45 74,32 C68,22 58,18 50,18 Z" fill="#FFA000"/><path d="M68,36 C64,28 55,22 48,22" fill="none" stroke="#FFD54F" stroke-width="3" stroke-linecap="round"/></svg>` },
+      { id: 'pineapple', ms: 'Nenas', en: 'Pineapple', svg: `<svg viewBox="0 0 100 100"><path d="M50,38 L40,12 L50,22 L60,12 L50,38" fill="#2E7D32"/><ellipse cx="50" cy="62" rx="24" ry="28" fill="#FFB300"/><g stroke="#E65100" stroke-width="1.8"><line x1="32" y1="48" x2="68" y2="76"/><line x1="28" y1="62" x2="72" y2="62"/><line x1="32" y1="76" x2="68" y2="48"/></g></svg>` },
+      { id: 'papaya', ms: 'Betik', en: 'Papaya', svg: `<svg viewBox="0 0 100 100"><ellipse cx="50" cy="55" rx="28" ry="34" fill="#FF8F00"/><ellipse cx="50" cy="55" rx="20" ry="26" fill="#FFA726"/><ellipse cx="50" cy="55" rx="10" ry="18" fill="#FFF3E0"/><g fill="#3E2723"><circle cx="48" cy="48" r="2.2"/><circle cx="52" cy="52" r="2.2"/><circle cx="49" cy="58" r="2.2"/><circle cx="51" cy="63" r="2.2"/></g></svg>` },
+      { id: 'guava', ms: 'Jambu Batu', en: 'Guava', svg: `<svg viewBox="0 0 100 100"><circle cx="50" cy="54" r="34" fill="#81C784"/><ellipse cx="50" cy="54" rx="26" ry="26" fill="#F48FB1"/><g fill="#880E4F" opacity="0.6"><circle cx="45" cy="48" r="1.8"/><circle cx="54" cy="50" r="1.8"/><circle cx="48" cy="58" r="1.8"/><circle cx="55" cy="60" r="1.8"/></g></svg>` },
+      { id: 'carrot', ms: 'Lobak Merah', en: 'Carrot', svg: `<svg viewBox="0 0 100 100"><path d="M50,34 L40,12 M50,34 L50,10 M50,34 L60,12" stroke="#4CAF50" stroke-width="3" stroke-linecap="round"/><path d="M38,34 Q50,30 62,34 Q56,70 50,88 Q44,70 38,34 Z" fill="#FF7043"/><path d="M42,46 L48,46 M46,58 L52,58" stroke="#E64A19" stroke-width="2"/></svg>` },
+      { id: 'tomato', ms: 'Tomato', en: 'Tomato', svg: `<svg viewBox="0 0 100 100"><circle cx="50" cy="55" r="34" fill="#E53935"/><path d="M50,22 L50,14" stroke="#2E7D32" stroke-width="4" stroke-linecap="round"/><polygon points="50,24 42,18 45,26 38,28 45,32 50,26 55,32 62,28 55,26 58,18" fill="#43A047"/><ellipse cx="36" cy="42" rx="4" ry="7" fill="#FFCDD2" opacity="0.6" transform="rotate(-30 36 42)"/></svg>` },
+      { id: 'corn', ms: 'Jagung', en: 'Corn', svg: `<svg viewBox="0 0 100 100"><ellipse cx="50" cy="50" rx="18" ry="34" fill="#FDD835"/><g stroke="#F57F17" stroke-width="1.5"><line x1="38" y1="36" x2="62" y2="36"/><line x1="34" y1="48" x2="66" y2="48"/><line x1="36" y1="60" x2="64" y2="60"/></g><path d="M32,84 Q34,50 24,38 Q32,56 42,74" fill="#66BB6A"/><path d="M68,84 Q66,50 76,38 Q68,56 58,74" fill="#4CAF50"/></svg>` },
+      { id: 'broccoli', ms: 'Brokoli', en: 'Broccoli', svg: `<svg viewBox="0 0 100 100"><path d="M44,60 L42,86 L58,86 L56,60 Z" fill="#81C784"/><circle cx="50" cy="38" r="18" fill="#2E7D32"/><circle cx="34" cy="46" r="14" fill="#388E3C"/><circle cx="66" cy="46" r="14" fill="#388E3C"/><circle cx="42" cy="54" r="12" fill="#43A047"/><circle cx="58" cy="54" r="12" fill="#43A047"/></svg>` },
+      { id: 'cucumber', ms: 'Timun', en: 'Cucumber', svg: `<svg viewBox="0 0 100 100"><rect x="22" y="40" width="56" height="22" rx="11" fill="#4CAF50" transform="rotate(-20 50 50)"/><ellipse cx="48" cy="50" rx="3" ry="1" fill="#A5D6A7" transform="rotate(-20 48 50)"/><ellipse cx="36" cy="54" rx="2.5" ry="1" fill="#A5D6A7" transform="rotate(-20 36 54)"/><ellipse cx="60" cy="45" rx="2.5" ry="1" fill="#A5D6A7" transform="rotate(-20 60 45)"/></svg>` },
+      { id: 'potato', ms: 'Kentang', en: 'Potato', svg: `<svg viewBox="0 0 100 100"><path d="M25,52 C20,38 35,28 55,26 C75,24 85,38 82,56 C80,74 65,82 45,80 C28,78 28,64 25,52 Z" fill="#BCAAA4"/><g fill="#8D6E63"><circle cx="40" cy="40" r="2"/><circle cx="62" cy="42" r="2.2"/><circle cx="48" cy="58" r="1.8"/><circle cx="66" cy="64" r="2"/></g></svg>` },
+      { id: 'pumpkin', ms: 'Labu', en: 'Pumpkin', svg: `<svg viewBox="0 0 100 100"><rect x="46" y="16" width="8" height="14" rx="3" fill="#33691E"/><ellipse cx="50" cy="58" rx="36" ry="28" fill="#F57C00"/><ellipse cx="50" cy="58" rx="26" ry="28" fill="#FB8C00"/><ellipse cx="50" cy="58" rx="14" ry="28" fill="#FFA726"/></svg>` },
+      { id: 'spinach', ms: 'Bayam', en: 'Spinach', svg: `<svg viewBox="0 0 100 100"><path d="M50,86 L50,46" stroke="#81C784" stroke-width="3.5"/><path d="M50,20 C30,28 26,60 50,75 C74,60 70,28 50,20 Z" fill="#2E7D32"/><path d="M50,24 Q40,40 34,50 M50,36 Q60,48 64,56" stroke="#4CAF50" stroke-width="2"/></svg>` },
+      { id: 'eggplant', ms: 'Terung', en: 'Eggplant', svg: `<svg viewBox="0 0 100 100"><path d="M48,22 L48,12" stroke="#2E7D32" stroke-width="4" stroke-linecap="round"/><path d="M38,24 Q50,30 62,24 Q50,36 38,24" fill="#43A047"/><path d="M50,28 C34,30 26,50 30,70 C34,86 55,90 68,82 C80,72 74,40 50,28 Z" fill="#4A148C"/><ellipse cx="44" cy="50" rx="3" ry="8" fill="#BA68C8" opacity="0.6" transform="rotate(-20 44 50)"/></svg>` },
+      { id: 'bellpepper', ms: 'Lada Benggala', en: 'Bell Pepper', svg: `<svg viewBox="0 0 100 100"><rect x="46" y="14" width="8" height="12" rx="3" fill="#2E7D32"/><path d="M28,34 C24,54 26,76 34,82 C42,86 46,78 50,78 C54,78 58,86 66,82 C74,76 76,54 72,34 C68,26 32,26 28,34 Z" fill="#E53935"/><path d="M42,34 Q38,58 42,76" stroke="#C62828" stroke-width="3" fill="none"/></svg>` },
+      { id: 'fish', ms: 'Ikan', en: 'Fish', svg: `<svg viewBox="0 0 100 100"><path d="M80,50 C65,30 35,34 18,50 C35,66 65,70 80,50 Z" fill="#42A5F5"/><polygon points="18,50 6,36 6,64" fill="#1E88E5"/><circle cx="68" cy="46" r="3.5" fill="#FFF"/><circle cx="69" cy="46" r="2" fill="#0D47A1"/><path d="M50,42 Q44,50 50,58" fill="none" stroke="#BBDEFB" stroke-width="2.5"/></svg>` },
+      { id: 'egg', ms: 'Telur', en: 'Egg', svg: `<svg viewBox="0 0 100 100"><path d="M50,16 C34,16 22,38 22,60 C22,76 34,88 50,88 C66,88 78,76 78,60 C78,38 66,16 50,16 Z" fill="#FFF8E1" stroke="#FFE082" stroke-width="2"/><ellipse cx="50" cy="62" rx="14" ry="16" fill="#FFB300"/><circle cx="46" cy="58" r="4" fill="#FFE082"/></svg>` },
+      { id: 'chicken', ms: 'Ayam Goreng', en: 'Fried Chicken', svg: `<svg viewBox="0 0 100 100"><ellipse cx="48" cy="88" rx="28" ry="7" fill="#5D4037" opacity="0.2"/><circle cx="18" cy="80" r="7" fill="#FFFFFF" stroke="#B0BEC5" stroke-width="2"/><circle cx="28" cy="87" r="7" fill="#FFFFFF" stroke="#B0BEC5" stroke-width="2"/><path d="M19,75 L38,58 L47,67 L28,84 Z" fill="#FFFFFF" stroke="#B0BEC5" stroke-width="2"/><path d="M34,64 C30,46 40,24 62,18 C78,14 91,26 89,44 C87,62 76,76 56,76 C44,76 36,70 34,64 Z" fill="#C65102"/><path d="M36,62 C33,48 42,27 62,21 C76,17 87,27 86,43 C84,58 74,72 56,72 C45,72 38,67 36,62 Z" fill="#FF8F00"/><path d="M42,56 C44,42 52,28 66,24 C74,21 82,28 81,38 C80,48 70,62 56,66 C48,68 43,62 42,56 Z" fill="#FFA726"/><ellipse cx="68" cy="34" rx="10" ry="7" fill="#FFB74D" transform="rotate(-25 68 34)"/><ellipse cx="54" cy="48" rx="8" ry="5" fill="#FFB74D" transform="rotate(-15 54 48)"/><ellipse cx="64" cy="54" rx="7" ry="5" fill="#FFB74D" transform="rotate(20 64 54)"/><path d="M52,24 Q64,19 74,25" fill="none" stroke="#FFF9C4" stroke-width="3" stroke-linecap="round"/><circle cx="48" cy="74" r="3" fill="#E65100"/><circle cx="68" cy="68" r="3.5" fill="#E65100"/><circle cx="85" cy="52" r="3.5" fill="#E65100"/><circle cx="87" cy="38" r="3" fill="#E65100"/><circle cx="78" cy="22" r="3" fill="#E65100"/><circle cx="48" cy="24" r="3" fill="#E65100"/><circle cx="36" cy="42" r="3" fill="#E65100"/><path d="M58,14 Q55,8 58,3" fill="none" stroke="#FFA726" stroke-width="2" stroke-linecap="round" opacity="0.6"/><path d="M72,12 Q69,6 73,2" fill="none" stroke="#FFA726" stroke-width="2" stroke-linecap="round" opacity="0.6"/></svg>` },
+      { id: 'tofu', ms: 'Tauhu', en: 'Tofu', svg: `<svg viewBox="0 0 100 100"><rect x="22" y="32" width="56" height="46" rx="8" fill="#FFF9C4" stroke="#FFE082" stroke-width="2"/><rect x="26" y="36" width="48" height="38" rx="4" fill="#FFFDE7"/><circle cx="40" cy="48" r="2" fill="#E0E0E0"/><circle cx="60" cy="60" r="2" fill="#E0E0E0"/></svg>` },
+      { id: 'meatball', ms: 'Bebola Daging', en: 'Meatball', svg: `<svg viewBox="0 0 100 100"><circle cx="50" cy="52" r="30" fill="#6D4C41"/><circle cx="42" cy="42" r="4" fill="#5D4037"/><circle cx="58" cy="46" r="5" fill="#4E342E"/><circle cx="48" cy="62" r="4.5" fill="#5D4037"/><path d="M36,36 Q46,30 56,34" stroke="#8D6E63" stroke-width="3" fill="none" opacity="0.6"/></svg>` },
+      { id: 'beans', ms: 'Kacang', en: 'Beans', svg: `<svg viewBox="0 0 100 100"><path d="M20,60 C35,25 75,30 85,55 C70,75 35,75 20,60 Z" fill="#66BB6A"/><circle cx="38" cy="52" r="6" fill="#81C784"/><circle cx="54" cy="52" r="6" fill="#81C784"/><circle cx="70" cy="52" r="6" fill="#81C784"/></svg>` },
+      { id: 'milk', ms: 'Susu', en: 'Milk', svg: `<svg viewBox="0 0 100 100"><polygon points="34,36 44,22 56,22 66,36" fill="#42A5F5"/><rect x="32" y="36" width="36" height="48" rx="4" fill="#E3F2FD" stroke="#90CAF9" stroke-width="2"/><rect x="36" y="50" width="28" height="18" fill="#42A5F5"/><text x="40" y="63" font-size="10" font-family="sans-serif" font-weight="bold" fill="#FFF">MILK</text></svg>` },
+      { id: 'cheese', ms: 'Keju', en: 'Cheese', svg: `<svg viewBox="0 0 100 100"><polygon points="20,68 76,68 84,46 44,32" fill="#FDD835"/><polygon points="20,68 44,32 40,42" fill="#FBC02D"/><circle cx="48" cy="54" r="5" fill="#F57F17"/><circle cx="68" cy="58" r="4" fill="#F57F17"/><circle cx="60" cy="46" r="3.5" fill="#F57F17"/></svg>` },
+      { id: 'yogurt', ms: 'Yogurt', en: 'Yogurt', svg: `<svg viewBox="0 0 100 100"><path d="M30,36 L70,36 L64,80 L36,80 Z" fill="#FCE4EC" stroke="#F48FB1" stroke-width="2"/><rect x="26" y="28" width="48" height="8" rx="3" fill="#EC407A"/><rect x="34" y="48" width="32" height="18" rx="2" fill="#FFF"/><circle cx="50" cy="57" r="5" fill="#E91E63"/></svg>` },
+      { id: 'butter', ms: 'Mentega', en: 'Butter', svg: `<svg viewBox="0 0 100 100"><rect x="18" y="54" width="64" height="24" rx="4" fill="#FFE082"/><polygon points="24,54 36,36 78,36 68,54" fill="#FFF59D"/><line x1="40" y1="42" x2="65" y2="42" stroke="#FFD54F" stroke-width="2"/></svg>` },
+      { id: 'rice', ms: 'Nasi', en: 'Rice', svg: `<svg viewBox="0 0 100 100"><path d="M20,54 C20,78 40,84 50,84 C60,84 80,78 80,54 Z" fill="#42A5F5"/><ellipse cx="50" cy="52" rx="30" ry="16" fill="#FFFFFF"/><circle cx="50" cy="48" r="2" fill="#E0E0E0"/><circle cx="44" cy="52" r="2" fill="#E0E0E0"/><circle cx="56" cy="50" r="2" fill="#E0E0E0"/></svg>` },
+      { id: 'noodles', ms: 'Mi', en: 'Noodles', svg: `<svg viewBox="0 0 100 100"><path d="M20,52 C20,80 40,86 50,86 C60,86 80,80 80,52 Z" fill="#E53935"/><path d="M24,52 Q40,32 50,52 Q60,32 76,52" fill="none" stroke="#FFF176" stroke-width="4"/><path d="M30,50 Q48,40 68,50" fill="none" stroke="#FFEE58" stroke-width="4"/><line x1="60" y1="20" x2="85" y2="40" stroke="#8D6E63" stroke-width="3"/></svg>` },
+      { id: 'bun', ms: 'Roti Bun', en: 'Bun', svg: `<svg viewBox="0 0 100 100"><path d="M20,62 C20,38 34,26 50,26 C66,26 80,38 80,62 Z" fill="#D7A15C"/><rect x="20" y="62" width="60" height="10" rx="5" fill="#BF823A"/><circle cx="40" cy="40" r="1.5" fill="#FFF"/><circle cx="50" cy="36" r="1.5" fill="#FFF"/><circle cx="60" cy="40" r="1.5" fill="#FFF"/></svg>` },
+      { id: 'pasta', ms: 'Pasta', en: 'Pasta', svg: `<svg viewBox="0 0 100 100"><ellipse cx="50" cy="52" rx="36" ry="14" fill="#CFD8DC"/><path d="M34,48 Q44,36 50,48 Q56,36 66,48" fill="none" stroke="#FDD835" stroke-width="5" stroke-linecap="round"/><circle cx="48" cy="44" r="5" fill="#E53935"/><circle cx="56" cy="46" r="4" fill="#E53935"/><path d="M50,40 L53,35" stroke="#4CAF50" stroke-width="2.5"/></svg>` },
+      { id: 'cereal', ms: 'Bijirin', en: 'Cereal', svg: `<svg viewBox="0 0 100 100"><path d="M22,50 C22,78 40,82 50,82 C60,82 78,78 78,50 Z" fill="#AB47BC"/><ellipse cx="50" cy="48" rx="28" ry="12" fill="#E1BEE7"/><circle cx="42" cy="46" r="4" fill="#FFA726"/><circle cx="52" cy="48" r="4" fill="#66BB6A"/><circle cx="60" cy="44" r="4" fill="#29B6F6"/></svg>` },
+      { id: 'cake', ms: 'Kek', en: 'Cake', svg: `<svg viewBox="0 0 100 100"><rect x="24" y="46" width="52" height="34" rx="4" fill="#F8BBD0"/><rect x="24" y="42" width="52" height="8" rx="4" fill="#FFFFFF"/><circle cx="50" cy="34" r="7" fill="#E91E63"/><line x1="50" y1="27" x2="50" y2="20" stroke="#FFCA28" stroke-width="3"/><path d="M48,18 Q50,12 52,18 Z" fill="#FF7043"/></svg>` },
+      { id: 'donut', ms: 'Donut', en: 'Donut', svg: `<svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="32" fill="#D7A15C"/><path d="M50,20 C66,20 80,32 80,48 C76,52 70,48 66,54 C62,58 60,66 54,64 C48,62 44,66 38,62 C32,58 24,64 20,48 C20,32 34,20 50,20 Z" fill="#F06292"/><circle cx="50" cy="50" r="12" fill="#F8E2CF"/><rect x="36" y="30" width="4" height="2" fill="#FFF"/><rect x="58" y="32" width="4" height="2" fill="#FFEB3B"/><rect x="68" y="44" width="4" height="2" fill="#69F0AE"/></svg>` },
+      { id: 'biscuit', ms: 'Biskut', en: 'Biscuit', svg: `<svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="30" fill="#FFA726" stroke="#FB8C00" stroke-width="3" stroke-dasharray="4,2"/><g fill="#795548"><circle cx="42" cy="40" r="2.5"/><circle cx="58" cy="40" r="2.5"/><circle cx="50" cy="50" r="2.5"/><circle cx="40" cy="60" r="2.5"/><circle cx="60" cy="60" r="2.5"/></g></svg>` },
+      { id: 'pizza', ms: 'Pizza', en: 'Pizza', svg: `<svg viewBox="0 0 100 100"><polygon points="50,14 18,78 82,78" fill="#FDD835"/><path d="M16,78 Q50,88 84,78" stroke="#D7A15C" stroke-width="8" fill="none" stroke-linecap="round"/><circle cx="44" cy="60" r="5" fill="#D32F2F"/><circle cx="58" cy="64" r="5" fill="#D32F2F"/><circle cx="50" cy="42" r="4.5" fill="#D32F2F"/><circle cx="36" cy="70" r="2.5" fill="#388E3C"/><circle cx="64" cy="50" r="2.5" fill="#388E3C"/></svg>` },
+      { id: 'burger', ms: 'Burger', en: 'Burger', svg: `<svg viewBox="0 0 100 100"><path d="M22,46 C22,26 36,18 50,18 C64,18 78,26 78,46 Z" fill="#D7A15C"/><rect x="18" y="46" width="64" height="6" fill="#4CAF50"/><polygon points="20,52 80,52 76,60 24,60" fill="#FFCA28"/><rect x="20" y="58" width="60" height="10" rx="3" fill="#5D4037"/><rect x="22" y="68" width="56" height="12" rx="6" fill="#D7A15C"/><circle cx="42" cy="28" r="1.5" fill="#FFF"/><circle cx="54" cy="26" r="1.5" fill="#FFF"/></svg>` },
+      { id: 'sandwich', ms: 'Sandwic', en: 'Sandwich', svg: `<svg viewBox="0 0 100 100"><polygon points="18,74 82,74 50,22" fill="#D7CCC8"/><polygon points="24,70 76,70 50,30" fill="#FFF9C4"/><rect x="26" y="66" width="48" height="4" fill="#4CAF50"/><rect x="30" y="62" width="40" height="4" fill="#E53935"/><rect x="34" y="58" width="32" height="4" fill="#FFCA28"/></svg>` },
+      { id: 'fries', ms: 'Kentang Goreng', en: 'French Fries', svg: `<svg viewBox="0 0 100 100"><polygon points="30,48 70,48 64,84 36,84" fill="#E53935"/><rect x="38" y="20" width="5" height="34" fill="#FFD54F"/><rect x="46" y="14" width="5" height="40" fill="#FFCA28"/><rect x="54" y="18" width="5" height="36" fill="#FFD54F"/><rect x="62" y="24" width="5" height="30" fill="#FFCA28"/><rect x="34" y="26" width="4" height="28" fill="#FFCA28"/></svg>` },
+      { id: 'pancake', ms: 'Lempeng', en: 'Pancake', svg: `<svg viewBox="0 0 100 100"><ellipse cx="50" cy="68" rx="32" ry="12" fill="#D7A15C"/><ellipse cx="50" cy="56" rx="30" ry="11" fill="#E2B176"/><ellipse cx="50" cy="44" rx="28" ry="10" fill="#ECC491"/><rect x="44" y="34" width="12" height="8" rx="2" fill="#FFF176"/></svg>` },
+      { id: 'icecream', ms: 'Aiskrim', en: 'Ice Cream', svg: `<svg viewBox="0 0 100 100"><polygon points="36,52 64,52 50,88" fill="#D7A15C"/><circle cx="50" cy="42" r="18" fill="#F48FB1"/><circle cx="50" cy="30" r="14" fill="#42A5F5"/><circle cx="50" cy="18" r="4.5" fill="#D32F2F"/></svg>` },
+      { id: 'cupcake', ms: 'Kek Cawan', en: 'Cupcake', svg: `<svg viewBox="0 0 100 100"><polygon points="32,54 68,54 62,84 38,84" fill="#8D6E63"/><path d="M28,54 C28,38 40,32 50,32 C60,32 72,38 72,54 Z" fill="#80DEEA"/><circle cx="50" cy="28" r="5" fill="#E91E63"/></svg>` },
+      { id: 'sausage', ms: 'Sosej', en: 'Sausage', svg: `<svg viewBox="0 0 100 100"><rect x="20" y="42" width="60" height="18" rx="9" fill="#E53935" transform="rotate(-15 50 51)"/><line x1="36" y1="46" x2="36" y2="54" stroke="#B71C1C" stroke-width="2.5" stroke-linecap="round"/><line x1="50" y1="44" x2="50" y2="52" stroke="#B71C1C" stroke-width="2.5" stroke-linecap="round"/><line x1="64" y1="42" x2="64" y2="50" stroke="#B71C1C" stroke-width="2.5" stroke-linecap="round"/></svg>` },
+      { id: 'popcorn', ms: 'Bertih Jagung', en: 'Popcorn', svg: `<svg viewBox="0 0 100 100"><polygon points="32,48 68,48 62,86 38,86" fill="#E53935"/><line x1="44" y1="48" x2="42" y2="86" stroke="#FFF" stroke-width="4"/><line x1="56" y1="48" x2="58" y2="86" stroke="#FFF" stroke-width="4"/><circle cx="42" cy="40" r="8" fill="#FFF9C4"/><circle cx="52" cy="36" r="9" fill="#FFFDE7"/><circle cx="60" cy="42" r="8" fill="#FFF9C4"/><circle cx="50" cy="44" r="7" fill="#FFEE58"/></svg>` }
+    ];
+
+    // Cute Mascot SVG: Pip the Chef Otter
+    function renderMascotSVG(emotion = 'happy') {
+      const mouthPath = emotion === 'sad' ? 'M42,66 Q50,60 58,66' : (emotion === 'excited' ? 'M42,62 Q50,74 58,62 Z' : 'M43,62 Q50,68 57,62');
+      return `
+      <svg viewBox="0 0 100 100" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="28" cy="38" r="8" fill="#8D5B36"/>
+        <circle cx="28" cy="38" r="4.5" fill="#FFCCBC"/>
+        <circle cx="72" cy="38" r="8" fill="#8D5B36"/>
+        <circle cx="72" cy="38" r="4.5" fill="#FFCCBC"/>
+        <ellipse cx="50" cy="74" rx="22" ry="18" fill="#8D5B36"/>
+        <path d="M38,66 L62,66 L59,88 L41,88 Z" fill="#FFF"/>
+        <line x1="43" y1="66" x2="40" y2="60" stroke="#FFF" stroke-width="2"/>
+        <line x1="57" y1="66" x2="60" y2="60" stroke="#FFF" stroke-width="2"/>
+        <ellipse cx="50" cy="50" rx="26" ry="22" fill="#A4683F"/>
+        <ellipse cx="50" cy="58" rx="14" ry="10" fill="#FFE0B2"/>
+        <ellipse cx="50" cy="53" rx="4" ry="2.8" fill="#3E2723"/>
+        <path d="${mouthPath}" fill="${emotion === 'excited' ? '#D84315' : 'none'}" stroke="#3E2723" stroke-width="2" stroke-linecap="round"/>
+        <circle cx="38" cy="48" r="3.8" fill="#212121"/>
+        <circle cx="37" cy="46.5" r="1.4" fill="#FFF"/>
+        <circle cx="62" cy="48" r="3.8" fill="#212121"/>
+        <circle cx="61" cy="46.5" r="1.4" fill="#FFF"/>
+        <circle cx="33" cy="56" r="3.5" fill="#FF8A80" opacity="0.6"/>
+        <circle cx="67" cy="56" r="3.5" fill="#FF8A80" opacity="0.6"/>
+        <path d="M40,30 L60,30 L62,34 L38,34 Z" fill="#ECEFF1"/>
+        <path d="M38,30 C30,24 35,12 45,16 C48,10 58,10 60,16 C70,12 72,24 62,30 Z" fill="#FFFFFF" stroke="#CFD8DC" stroke-width="1.2"/>
+      </svg>`;
+    }
+
+    // Generates distinctive cute animal customers (Cat, Tiger, Lion) with blinking eyes
+    function renderCustomerChibiSVG(custIndex, emotion = 'normal') {
+      const type = custIndex % 3;
+      const isHappy = emotion === 'happy';
+
+      const chairMarkup = `
+        <rect x="23" y="46" width="54" height="48" rx="16" fill="#DDBFA6" stroke="#BB9373" stroke-width="2.5"/>
+        <rect x="29" y="52" width="42" height="36" rx="10" fill="#EAD5C3" opacity="0.8"/>
+        <line x1="40" y1="55" x2="40" y2="84" stroke="#C8A586" stroke-width="2.5" stroke-linecap="round"/>
+        <line x1="50" y1="55" x2="50" y2="84" stroke="#C8A586" stroke-width="2.5" stroke-linecap="round"/>
+        <line x1="60" y1="55" x2="60" y2="84" stroke="#C8A586" stroke-width="2.5" stroke-linecap="round"/>
+      `;
+
+      const happySparkles = isHappy ? `
+        <g>
+          <path d="M50,14 C48,10 44,10 42,13 C39,17 44,22 50,26 C56,22 61,17 58,13 C56,10 52,10 50,14 Z" fill="#FE51B0">
+            <animateTransform attributeName="transform" type="translate" values="0,4; 0,-8; 0,4" dur="1.8s" repeatCount="indefinite"/>
+            <animate attributeName="opacity" values="0.7;1;0.7" dur="1.8s" repeatCount="indefinite"/>
+          </path>
+          <path d="M16,28 Q18,21 21,19 Q18,17 16,10 Q14,17 11,19 Q14,21 16,28 Z" fill="#F5E45F">
+            <animateTransform attributeName="transform" type="scale" values="0.8;1.2;0.8" transform-origin="16 19" dur="1.4s" repeatCount="indefinite"/>
+          </path>
+          <path d="M84,28 Q86,21 89,19 Q86,17 84,10 Q82,17 79,19 Q82,21 84,28 Z" fill="#F5E45F">
+            <animateTransform attributeName="transform" type="scale" values="1.2;0.8;1.2" transform-origin="84 19" dur="1.4s" repeatCount="indefinite"/>
+          </path>
+        </g>
+      ` : '';
+
+      const happyEyes = `
+        <path d="M33,48 Q40,38 47,48" fill="none" stroke="#2B1A14" stroke-width="3.6" stroke-linecap="round"/>
+        <path d="M53,48 Q60,38 67,48" fill="none" stroke="#2B1A14" stroke-width="3.6" stroke-linecap="round"/>
+        <circle cx="40" cy="40" r="1.5" fill="#FE51B0" opacity="0.8"/>
+        <circle cx="60" cy="40" r="1.5" fill="#FE51B0" opacity="0.8"/>
+      `;
+
+      const happyMouth = `
+        <path d="M44,55 Q50,66 56,55 Z" fill="#FE51B0" stroke="#2B1A14" stroke-width="1.8"/>
+        <ellipse cx="50" cy="60" rx="3.5" ry="2" fill="#FFA5D6"/>
+      `;
+
+      if (type === 0) {
+        // 0: CUTE CHIBI KITTEN
+        const eyes = isHappy ? happyEyes : `
+          <ellipse cx="40" cy="46" rx="6" ry="7.2" fill="#241814">
+            <animate attributeName="ry" values="7.2;7.2;0.8;7.2" keyTimes="0;0.92;0.96;1" dur="3.4s" repeatCount="indefinite"/>
+          </ellipse>
+          <circle cx="38" cy="43.5" r="2.6" fill="#FFFFFF">
+            <animate attributeName="opacity" values="1;1;0;1" keyTimes="0;0.92;0.96;1" dur="3.4s" repeatCount="indefinite"/>
+          </circle>
+          <circle cx="42.5" cy="48" r="1.3" fill="#FFFFFF"/>
+          
+          <ellipse cx="60" cy="46" rx="6" ry="7.2" fill="#241814">
+            <animate attributeName="ry" values="7.2;7.2;0.8;7.2" keyTimes="0;0.92;0.96;1" dur="3.4s" repeatCount="indefinite"/>
+          </ellipse>
+          <circle cx="58" cy="43.5" r="2.6" fill="#FFFFFF">
+            <animate attributeName="opacity" values="1;1;0;1" keyTimes="0;0.92;0.96;1" dur="3.4s" repeatCount="indefinite"/>
+          </circle>
+          <circle cx="62.5" cy="48" r="1.3" fill="#FFFFFF"/>
+        `;
+
+        const mouth = isHappy ? happyMouth : `
+          <path d="M44.5,54 Q47.5,57.5 50,55 Q52.5,57.5 55.5,54" fill="none" stroke="#4A2818" stroke-width="2.2" stroke-linecap="round"/>
+        `;
+
+        return `
+        <svg viewBox="0 0 100 110" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
+          ${chairMarkup}
+          ${happySparkles}
+          <g>
+            <animateTransform attributeName="transform" type="translate" values="0,0; 0,-2.5; 0,0" dur="2.7s" repeatCount="indefinite"/>
+            <path d="M72,76 Q88,72 86,58 Q84,52 79,56" fill="none" stroke="#FFD8B3" stroke-width="7" stroke-linecap="round">
+              <animateTransform attributeName="transform" type="rotate" values="0 72 76; 5 72 76; 0 72 76" dur="2.5s" repeatCount="indefinite"/>
+            </path>
+            <ellipse cx="50" cy="80" rx="21" ry="16" fill="#00C69E"/>
+            <path d="M37,70 Q50,73 63,70 L60,86 L40,86 Z" fill="#E6FAF6"/>
+            <polygon points="50,74 51.5,77 54.5,77.5 52.2,79.5 53,82.5 50,81 47,82.5 47.8,79.5 45.5,77.5 48.5,77" fill="#F5E45F"/>
+            <path d="M25,38 C23,26 28,14 36,18 C41,20 44,28 42,34 Z" fill="#FFEFE2"/>
+            <path d="M28,34 C27,26 31,18 36,21 C39,23 41,28 39,32 Z" fill="#FFAAA6"/>
+            <path d="M75,38 C77,26 72,14 64,18 C59,20 56,28 58,34 Z" fill="#FFAE73"/>
+            <path d="M72,34 C73,26 69,18 64,21 C61,23 59,28 61,32 Z" fill="#FFAAA6"/>
+            <ellipse cx="50" cy="48" rx="25" ry="21.5" fill="#FFF4EB"/>
+            <path d="M57,28 Q71,28 73,42 Q63,45 57,28 Z" fill="#FFAE73" opacity="0.85"/>
+            <path d="M47,27 L50,33 L53,27 Z" fill="#FFAE73"/>
+            <line x1="22" y1="52" x2="31" y2="51" stroke="#D1A78B" stroke-width="2" stroke-linecap="round"/>
+            <line x1="23" y1="56" x2="32" y2="57" stroke="#D1A78B" stroke-width="2" stroke-linecap="round"/>
+            <line x1="78" y1="52" x2="69" y2="51" stroke="#D1A78B" stroke-width="2" stroke-linecap="round"/>
+            <line x1="77" y1="56" x2="68" y2="57" stroke="#D1A78B" stroke-width="2" stroke-linecap="round"/>
+            ${eyes}
+            <path d="M48.5,50 C48,49 46.5,50 48,51.5 L50,53.5 L52,51.5 C53.5,50 52,49 51.5,50 Z" fill="#FE51B0"/>
+            ${mouth}
+            <ellipse cx="32" cy="53" rx="4.5" ry="3" fill="#FE51B0" opacity="0.6"/>
+            <ellipse cx="68" cy="53" rx="4.5" ry="3" fill="#FE51B0" opacity="0.6"/>
+            <ellipse cx="35" cy="87" rx="7" ry="5.5" fill="#FFFFFF" stroke="#E8D5C4" stroke-width="1.2"/>
+            <ellipse cx="65" cy="87" rx="7" ry="5.5" fill="#FFFFFF" stroke="#E8D5C4" stroke-width="1.2"/>
+            <circle cx="35" cy="86" r="2.2" fill="#FFAAA6"/>
+            <circle cx="65" cy="86" r="2.2" fill="#FFAAA6"/>
+          </g>
+        </svg>`;
+
+      } else if (type === 1) {
+        // 1: CUTE CHIBI TIGER CUB
+        const eyes = isHappy ? happyEyes : `
+          <ellipse cx="40" cy="46" rx="6" ry="7.2" fill="#241814">
+            <animate attributeName="ry" values="7.2;7.2;0.8;7.2" keyTimes="0;0.92;0.96;1" dur="3.8s" repeatCount="indefinite"/>
+          </ellipse>
+          <circle cx="38" cy="43.5" r="2.6" fill="#FFFFFF">
+            <animate attributeName="opacity" values="1;1;0;1" keyTimes="0;0.92;0.96;1" dur="3.8s" repeatCount="indefinite"/>
+          </circle>
+          <circle cx="42.5" cy="48" r="1.3" fill="#FFFFFF"/>
+          
+          <ellipse cx="60" cy="46" rx="6" ry="7.2" fill="#241814">
+            <animate attributeName="ry" values="7.2;7.2;0.8;7.2" keyTimes="0;0.92;0.96;1" dur="3.8s" repeatCount="indefinite"/>
+          </ellipse>
+          <circle cx="58" cy="43.5" r="2.6" fill="#FFFFFF">
+            <animate attributeName="opacity" values="1;1;0;1" keyTimes="0;0.92;0.96;1" dur="3.8s" repeatCount="indefinite"/>
+          </circle>
+          <circle cx="62.5" cy="48" r="1.3" fill="#FFFFFF"/>
+        `;
+
+        const mouth = isHappy ? happyMouth : `
+          <path d="M45,54 Q50,58 55,54" fill="none" stroke="#4A2612" stroke-width="2.2" stroke-linecap="round"/>
+          <polygon points="46,54 47.5,56.5 48.5,54" fill="#FFFFFF"/>
+          <polygon points="51.5,54 52.5,56.5 54,54" fill="#FFFFFF"/>
+        `;
+
+        return `
+        <svg viewBox="0 0 100 110" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
+          ${chairMarkup}
+          ${happySparkles}
+          <g>
+            <animateTransform attributeName="transform" type="translate" values="0,0; 0,-2.8; 0,0" dur="3.1s" repeatCount="indefinite"/>
+            <ellipse cx="50" cy="80" rx="21" ry="16" fill="#07BDFF"/>
+            <path d="M42,69 L58,69 L56,86 L44,86 Z" fill="#FFFFFF"/>
+            <circle cx="50" cy="74" r="2" fill="#F5E45F"/>
+            <circle cx="50" cy="80" r="2" fill="#F5E45F"/>
+            <circle cx="27" cy="27" r="11" fill="#4A2612"/>
+            <circle cx="27" cy="27" r="9" fill="#FFA733"/>
+            <circle cx="27" cy="27" r="5.5" fill="#FFE8D1"/>
+            <circle cx="73" cy="27" r="11" fill="#4A2612"/>
+            <circle cx="73" cy="27" r="9" fill="#FFA733"/>
+            <circle cx="73" cy="27" r="5.5" fill="#FFE8D1"/>
+            <ellipse cx="50" cy="48" rx="25" ry="21.5" fill="#FFA733"/>
+            <path d="M49,27 Q50,33 51,27 Z" fill="#5A2E14"/>
+            <path d="M41,29 Q45,35 44,28 Z" fill="#5A2E14"/>
+            <path d="M59,29 Q55,35 56,28 Z" fill="#5A2E14"/>
+            <ellipse cx="26" cy="46" rx="4" ry="1.8" fill="#5A2E14" transform="rotate(10 26 46)"/>
+            <ellipse cx="27" cy="51" rx="3.5" ry="1.6" fill="#5A2E14" transform="rotate(10 27 51)"/>
+            <ellipse cx="74" cy="46" rx="4" ry="1.8" fill="#5A2E14" transform="rotate(-10 74 46)"/>
+            <ellipse cx="73" cy="51" rx="3.5" ry="1.6" fill="#5A2E14" transform="rotate(-10 73 51)"/>
+            <ellipse cx="50" cy="54" rx="14" ry="9" fill="#FFF9E6"/>
+            ${eyes}
+            <ellipse cx="50" cy="50" rx="3.2" ry="2.2" fill="#D35400"/>
+            ${mouth}
+            <ellipse cx="32" cy="52" rx="4.5" ry="3" fill="#FE51B0" opacity="0.65"/>
+            <ellipse cx="68" cy="52" rx="4.5" ry="3" fill="#FE51B0" opacity="0.65"/>
+            <ellipse cx="35" cy="87" rx="7" ry="5.5" fill="#FFA733" stroke="#D35400" stroke-width="1.2"/>
+            <ellipse cx="65" cy="87" rx="7" ry="5.5" fill="#FFA733" stroke="#D35400" stroke-width="1.2"/>
+            <line x1="33" y1="87" x2="33" y2="90" stroke="#7A3B10" stroke-width="1.5" stroke-linecap="round"/>
+            <line x1="37" y1="87" x2="37" y2="90" stroke="#7A3B10" stroke-width="1.5" stroke-linecap="round"/>
+            <line x1="63" y1="87" x2="63" y2="90" stroke="#7A3B10" stroke-width="1.5" stroke-linecap="round"/>
+            <line x1="67" y1="87" x2="67" y2="90" stroke="#7A3B10" stroke-width="1.5" stroke-linecap="round"/>
+          </g>
+        </svg>`;
+
+      } else {
+        // 2: CUTE CHIBI LION CUB
+        const eyes = isHappy ? happyEyes : `
+          <ellipse cx="40" cy="46" rx="6" ry="7.2" fill="#241814">
+            <animate attributeName="ry" values="7.2;7.2;0.8;7.2" keyTimes="0;0.92;0.96;1" dur="3.6s" repeatCount="indefinite"/>
+          </ellipse>
+          <circle cx="38" cy="43.5" r="2.6" fill="#FFFFFF">
+            <animate attributeName="opacity" values="1;1;0;1" keyTimes="0;0.92;0.96;1" dur="3.6s" repeatCount="indefinite"/>
+          </circle>
+          <circle cx="42.5" cy="48" r="1.3" fill="#FFFFFF"/>
+          
+          <ellipse cx="60" cy="46" rx="6" ry="7.2" fill="#241814">
+            <animate attributeName="ry" values="7.2;7.2;0.8;7.2" keyTimes="0;0.92;0.96;1" dur="3.6s" repeatCount="indefinite"/>
+          </ellipse>
+          <circle cx="58" cy="43.5" r="2.6" fill="#FFFFFF">
+            <animate attributeName="opacity" values="1;1;0;1" keyTimes="0;0.92;0.96;1" dur="3.6s" repeatCount="indefinite"/>
+          </circle>
+          <circle cx="62.5" cy="48" r="1.3" fill="#FFFFFF"/>
+        `;
+
+        const mouth = isHappy ? happyMouth : `
+          <path d="M45,54 Q50,58 55,54" fill="none" stroke="#4A2612" stroke-width="2.2" stroke-linecap="round"/>
+        `;
+
+        return `
+        <svg viewBox="0 0 100 110" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
+          ${chairMarkup}
+          ${happySparkles}
+          <g>
+            <animateTransform attributeName="transform" type="translate" values="0,0; 0,-2.4; 0,0" dur="2.9s" repeatCount="indefinite"/>
+            <g fill="#F5E45F" stroke="#CBB930" stroke-width="1.5">
+              <circle cx="50" cy="18" r="12" />
+              <circle cx="33" cy="22" r="11" />
+              <circle cx="67" cy="22" r="11" />
+              <circle cx="21" cy="34" r="11" />
+              <circle cx="79" cy="34" r="11" />
+              <circle cx="18" cy="50" r="11.5" />
+              <circle cx="82" cy="50" r="11.5" />
+              <circle cx="23" cy="65" r="11" />
+              <circle cx="77" cy="65" r="11" />
+              <circle cx="34" cy="74" r="10.5" />
+              <circle cx="66" cy="74" r="10.5" />
+              <circle cx="50" cy="76" r="10" />
+            </g>
+            <circle cx="27" cy="26" r="8" fill="#FDD835"/>
+            <circle cx="27" cy="26" r="4.5" fill="#FFF2D6"/>
+            <circle cx="73" cy="26" r="8" fill="#FDD835"/>
+            <circle cx="73" cy="26" r="4.5" fill="#FFF2D6"/>
+            <ellipse cx="50" cy="80" rx="20" ry="16" fill="#E2C1F3"/>
+            <path d="M42,69 Q50,72 58,69 L56,86 L44,86 Z" fill="#FBF4FD"/>
+            <circle cx="50" cy="76" r="3" fill="#FE51B0"/>
+            <path d="M48,74 L52,74 L50,72 Z" fill="#00C69E"/>
+            <circle cx="50" cy="48" r="22.5" fill="#FFF2B2"/>
+            <path d="M46,28 Q50,21 54,28 Q51,32 46,28 Z" fill="#F5E45F"/>
+            <ellipse cx="50" cy="54" rx="13" ry="8.5" fill="#FEF9E7"/>
+            ${eyes}
+            <polygon points="47.5,49.5 52.5,49.5 50,53" fill="#FD7A39"/>
+            ${mouth}
+            <ellipse cx="32" cy="52" rx="4.5" ry="3" fill="#FE51B0" opacity="0.65"/>
+            <ellipse cx="68" cy="52" rx="4.5" ry="3" fill="#FE51B0" opacity="0.65"/>
+            <ellipse cx="35" cy="87" rx="7" ry="5.5" fill="#FFF2B2" stroke="#E2C1F3" stroke-width="1.2"/>
+            <ellipse cx="65" cy="87" rx="7" ry="5.5" fill="#FFF2B2" stroke="#E2C1F3" stroke-width="1.2"/>
+            <circle cx="35" cy="86" r="2.2" fill="#FE51B0"/>
+            <circle cx="65" cy="86" r="2.2" fill="#FE51B0"/>
+          </g>
+        </svg>`;
+      }
+    }
+
+    function renderTableSurfaceSVG() {
+      return `
+      <svg viewBox="0 0 160 50" width="100%" height="100%">
+        <ellipse cx="80" cy="25" rx="76" ry="18" fill="#D9B79B"/>
+        <ellipse cx="80" cy="22" rx="74" ry="16" fill="#EED4BF"/>
+        <path d="M8,25 C8,35 152,35 152,25" fill="none" stroke="#C49B7A" stroke-width="3"/>
+        <rect x="120" y="8" width="14" height="18" rx="3" fill="#E1F7FF" opacity="0.9" stroke="#07BDFF" stroke-width="1.5"/>
+        <ellipse cx="127" cy="8" rx="7" ry="2" fill="#BBEBFF"/>
+      </svg>`;
+    }
+
+    let audioCtx = null;
+    function playTone(type) {
+      try {
+        if (!audioCtx) {
+          audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        }
+        if (audioCtx.state === 'suspended') {
+          audioCtx.resume();
+        }
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+
+        const now = audioCtx.currentTime;
+        if (type === 'correct') {
+          osc.type = 'triangle';
+          osc.frequency.setValueAtTime(440, now);
+          osc.frequency.exponentialRampToValueAtTime(880, now + 0.25);
+          gain.gain.setValueAtTime(0.3, now);
+          gain.gain.linearRampToValueAtTime(0.01, now + 0.3);
+          osc.start(now);
+          osc.stop(now + 0.3);
+        } else if (type === 'wrong') {
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(280, now);
+          osc.frequency.exponentialRampToValueAtTime(220, now + 0.25);
+          gain.gain.setValueAtTime(0.25, now);
+          gain.gain.linearRampToValueAtTime(0.01, now + 0.25);
+          osc.start(now);
+          osc.stop(now + 0.25);
+        } else if (type === 'tap') {
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(520, now);
+          gain.gain.setValueAtTime(0.15, now);
+          gain.gain.linearRampToValueAtTime(0.01, now + 0.08);
+          osc.start(now);
+          osc.stop(now + 0.08);
+        }
+      } catch (e) {}
+    }
+
+    function showScreen(screenId) {
+      document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+      const target = document.getElementById(screenId);
+      if (target) {
+        target.classList.add('active');
+      }
+      
+      const scoreBox = document.getElementById('score-display-box');
+      if (screenId === 'screen-gameplay') {
+        scoreBox.style.display = 'flex';
+      } else {
+        scoreBox.style.display = 'none';
+      }
+
+      updateScreenMascots();
+    }
+
+    function updateScreenMascots() {
+      const hBox = document.getElementById('home-mascot-container');
+      if (hBox) hBox.innerHTML = renderMascotSVG('happy');
+      const iBox = document.getElementById('instructions-mascot-box');
+      if (iBox) iBox.innerHTML = renderMascotSVG('excited');
+      const rBox = document.getElementById('result-mascot-box');
+      if (rBox) rBox.innerHTML = renderMascotSVG('excited');
+      const gBox = document.getElementById('gameplay-mascot-mini');
+      if (gBox) gBox.innerHTML = renderMascotSVG('happy');
+      const cBox = document.getElementById('collection-mascot-box');
+      if (cBox) cBox.innerHTML = renderMascotSVG('happy');
+    }
+
+    function setLanguage(lang) {
+      currentLang = lang;
+      const t = i18n[lang];
+      document.documentElement.lang = lang;
+
+      // Top bar
+      document.getElementById('nav-home-text').textContent = t.navHome;
+      document.getElementById('nav-how-text').textContent = t.navHow;
+      document.getElementById('game-score-label').textContent = t.scoreLabel;
+      document.getElementById('current-lang-text').textContent = lang === 'ms' ? 'EN' : 'BM';
+
+      // Home
+      document.getElementById('home-title-text').textContent = t.homeTitle;
+      document.getElementById('home-sub-text').textContent = t.homeSubtitle;
+      document.getElementById('txt-btn-play').textContent = t.btnPlay;
+      document.getElementById('txt-btn-profile').textContent = t.btnProfile;
+      document.getElementById('txt-btn-collection').textContent = t.btnCollection;
+
+      // Session
+      document.getElementById('session-title-text').textContent = t.sessionTitle;
+      document.getElementById('session-desc-text').textContent = t.sessionDesc;
+      document.querySelector('.session-label-5').textContent = t.session5;
+      document.querySelector('.session-label-10').textContent = t.session10;
+      document.querySelector('.session-label-20').textContent = t.session20;
+      document.querySelector('.session-label-free').textContent = t.sessionFree;
+      document.querySelectorAll('.txt-back-home').forEach(el => el.textContent = t.backHome);
+      document.querySelectorAll('.txt-close').forEach(el => el.textContent = t.close);
+
+      // How to Play
+      document.getElementById('how-title-text').textContent = t.howTitle;
+      document.getElementById('how-desc-text').textContent = t.howDesc;
+      document.getElementById('txt-how-start').textContent = t.btnPlay;
+
+      // Gameplay
+      document.getElementById('counter-title-text').textContent = t.counterTitle;
+      document.getElementById('counter-tip-text').textContent = t.counterTip;
+
+      // Results
+      document.getElementById('result-congrats-text').textContent = t.resultCongrats;
+      document.getElementById('result-sub-text').textContent = t.resultSub;
+      document.getElementById('lbl-res-score').textContent = t.resScore;
+      document.getElementById('lbl-res-answered').textContent = t.resAnswered;
+      document.getElementById('lbl-res-correct').textContent = t.resCorrect;
+      document.getElementById('lbl-res-acc').textContent = t.resAcc;
+      document.getElementById('txt-play-again').textContent = t.playAgain;
+      document.getElementById('txt-result-home').textContent = t.backHome;
+
+      // Player Profile
+      document.getElementById('prof-header-text').textContent = t.profHeader;
+      document.getElementById('p-lbl-played').textContent = t.pPlayed;
+      document.getElementById('p-lbl-tasks').textContent = t.pTasks;
+      document.getElementById('p-lbl-correct').textContent = t.pCorrect;
+      document.getElementById('p-lbl-best').textContent = t.pBest;
+      document.getElementById('p-lbl-recent').textContent = t.pRecent;
+
+      // Collection
+      document.getElementById('coll-header-text').textContent = t.collHeader;
+
+      renderCollectionGrid();
+
+      if (activeTask) {
+        updateTaskPromptText();
+      }
+    }
+
+    function loadProfile() {
+      try {
+        const raw = localStorage.getItem(PROFILE_KEY);
+        if (raw) {
+          return JSON.parse(raw);
+        }
+      } catch (e) {}
+      return {
+        gamesPlayed: 0,
+        questionsAnswered: 0,
+        correctAnswers: 0,
+        bestScore: 0,
+        recentActivity: []
+      };
+    }
+
+    function saveProfile(data) {
+      try {
+        localStorage.setItem(PROFILE_KEY, JSON.stringify(data));
+      } catch (e) {}
+    }
+
+    function updateProfileStatsUI() {
+      const data = loadProfile();
+      document.getElementById('p-val-played').textContent = data.gamesPlayed;
+      document.getElementById('p-val-tasks').textContent = data.questionsAnswered;
+      document.getElementById('p-val-correct').textContent = data.correctAnswers;
+      document.getElementById('p-val-best').textContent = data.bestScore;
+
+      const actBox = document.getElementById('recent-activity-box');
+      if (data.recentActivity && data.recentActivity.length > 0) {
+        actBox.innerHTML = data.recentActivity.slice(-3).reverse().map(act => `<div>• ${act}</div>`).join('');
+      } else {
+        actBox.textContent = i18n[currentLang].noActivity;
+      }
+    }
+
+    function renderCollectionGrid() {
+      const grid = document.getElementById('collection-gallery-grid');
+      if (!grid) return;
+      grid.innerHTML = '';
+      
+      FOOD_ITEMS.forEach(item => {
+        const card = document.createElement('div');
+        card.className = 'food-card';
+        card.innerHTML = `
+          <div class="food-card-svg">${item.svg}</div>
+          <div class="food-card-name">${currentLang === 'ms' ? item.ms : item.en}</div>
+        `;
+        card.addEventListener('click', () => {
+          playTone('tap');
+          card.classList.add('wobble');
+          setTimeout(() => card.classList.remove('wobble'), 500);
+        });
+        grid.appendChild(card);
+      });
+    }
+
+    function getRandomFoods(count, excludeIds = []) {
+      const pool = FOOD_ITEMS.filter(f => !excludeIds.includes(f.id));
+      const shuffled = [...pool].sort(() => Math.random() - 0.5);
+      return shuffled.slice(0, count);
+    }
+
+    function generateRandomTask() {
+      const variationType = Math.floor(Math.random() * 6);
+      const customerCount = 3;
+
+      if (variationType === 0) {
+        // VARIATION A: Ambil Pesanan
+        const targetFood = getRandomFoods(1)[0];
+        const distractorFoods = getRandomFoods(5, [targetFood.id]);
+        const trayFoods = [targetFood, ...distractorFoods].sort(() => Math.random() - 0.5);
+        return {
+          type: 'A',
+          customerIndex: Math.floor(Math.random() * customerCount),
+          targetFood: targetFood,
+          trayFoods: trayFoods
+        };
+      } else if (variationType === 1) {
+        // VARIATION B: Sediakan Dulang
+        const targetFood = getRandomFoods(1)[0];
+        const distractorFoods = getRandomFoods(5, [targetFood.id]);
+        const trayFoods = [targetFood, ...distractorFoods].sort(() => Math.random() - 0.5);
+        return {
+          type: 'B',
+          customerIndex: Math.floor(Math.random() * customerCount),
+          targetFood: targetFood,
+          trayFoods: trayFoods
+        };
+      } else if (variationType === 2) {
+        // VARIATION C: Padankan Pesanan
+        const foods = getRandomFoods(3);
+        const customersOrder = [
+          { custIdx: 0, food: foods[0] },
+          { custIdx: 1, food: foods[1] },
+          { custIdx: 2, food: foods[2] }
+        ];
+        const distractorFoods = getRandomFoods(2, foods.map(f => f.id));
+        const trayFoods = [...foods, ...distractorFoods].sort(() => Math.random() - 0.5);
+        return {
+          type: 'C',
+          customersOrder: customersOrder,
+          trayFoods: trayFoods,
+          matchedCount: 0
+        };
+      } else if (variationType === 3) {
+        // VARIATION D: Cari Makanan
+        const targetFood = getRandomFoods(1)[0];
+        const distractorFoods = getRandomFoods(5, [targetFood.id]);
+        const trayFoods = [targetFood, ...distractorFoods].sort(() => Math.random() - 0.5);
+        return {
+          type: 'D',
+          customerIndex: Math.floor(Math.random() * customerCount),
+          targetFood: targetFood,
+          trayFoods: trayFoods
+        };
+      } else if (variationType === 4) {
+        // VARIATION E: Mana Pesanan Yang Betul?
+        const comboFoods = getRandomFoods(2);
+        const distractor1 = [comboFoods[0], getRandomFoods(1, [comboFoods[0].id, comboFoods[1].id])[0]];
+        const distractor2 = getRandomFoods(2, [comboFoods[0].id, comboFoods[1].id]);
+        const options = [
+          { foods: comboFoods, correct: true },
+          { foods: distractor1, correct: false },
+          { foods: distractor2, correct: false }
+        ].sort(() => Math.random() - 0.5);
+
+        return {
+          type: 'E',
+          customerIndex: Math.floor(Math.random() * customerCount),
+          correctCombo: comboFoods,
+          options: options
+        };
+      } else {
+        // VARIATION F: Kira Pesanan
+        const targetFood = getRandomFoods(1)[0];
+        const countNeeded = Math.floor(Math.random() * 4) + 2;
+        const distractorFoods = getRandomFoods(2, [targetFood.id]);
+        const trayFoods = [
+          ...Array(countNeeded + 1).fill(targetFood),
+          ...distractorFoods
+        ].sort(() => Math.random() - 0.5);
+        return {
+          type: 'F',
+          customerIndex: Math.floor(Math.random() * customerCount),
+          targetFood: targetFood,
+          countNeeded: countNeeded,
+          currentCount: 0,
+          trayFoods: trayFoods
+        };
+      }
+    }
+
+    function updateTaskPromptText() {
+      const banner = document.getElementById('current-task-prompt');
+      const t = i18n[currentLang];
+      if (!activeTask) return;
+
+      if (activeTask.type === 'A') {
+        const name = currentLang === 'ms' ? activeTask.targetFood.ms : activeTask.targetFood.en;
+        banner.textContent = `${t.orderRequestPrefix}${name}${t.orderRequestSuffix}`;
+      } else if (activeTask.type === 'B') {
+        banner.textContent = t.prepareOrder;
+      } else if (activeTask.type === 'C') {
+        banner.textContent = t.matchPrompt;
+      } else if (activeTask.type === 'D') {
+        const name = currentLang === 'ms' ? activeTask.targetFood.ms : activeTask.targetFood.en;
+        banner.textContent = `${t.findPrefix}${name}!`;
+      } else if (activeTask.type === 'E') {
+        banner.textContent = t.whichOrder;
+      } else if (activeTask.type === 'F') {
+        const name = currentLang === 'ms' ? activeTask.targetFood.ms : activeTask.targetFood.en;
+        banner.textContent = `${t.putPrefix}${activeTask.countNeeded} ${name}.`;
+      }
+    }
+
+    function setupTaskScene() {
+      if (!activeTask) return;
+      isTransitioning = false;
+
+      const custContainer = document.getElementById('customers-container');
+      const trayContainer = document.getElementById('food-interactive-tray');
+      custContainer.innerHTML = '';
+      trayContainer.innerHTML = '';
+
+      const chip = document.getElementById('task-counter-chip');
+      if (currentSessionGoal === 999) {
+        chip.textContent = `${questionsAnsweredInSession + 1} (∞)`;
+      } else {
+        chip.textContent = `${questionsAnsweredInSession + 1} / ${currentSessionGoal}`;
+      }
+
+      updateTaskPromptText();
+
+      // Render Customers Row (3 tables with Cat, Tiger, Lion)
+      for (let i = 0; i < 3; i++) {
+        const unit = document.createElement('div');
+        unit.className = 'customer-table-unit';
+        unit.dataset.customerIndex = i;
+
+        let bubbleContent = '';
+        if (activeTask.type === 'A' || activeTask.type === 'B') {
+          if (activeTask.customerIndex === i) {
+            bubbleContent = `<div class="order-bubble"><div class="order-item-icon">${activeTask.targetFood.svg}</div></div>`;
+          }
+        } else if (activeTask.type === 'C') {
+          const match = activeTask.customersOrder.find(o => o.custIdx === i);
+          if (match) {
+            bubbleContent = `<div class="order-bubble"><div class="order-item-icon">${match.food.svg}</div></div>`;
+          }
+        } else if (activeTask.type === 'E') {
+          if (activeTask.customerIndex === i) {
+            bubbleContent = `<div class="order-bubble">
+              <div class="order-item-icon">${activeTask.correctCombo[0].svg}</div>
+              <div class="order-item-icon">${activeTask.correctCombo[1].svg}</div>
+            </div>`;
+          }
+        } else if (activeTask.type === 'F') {
+          if (activeTask.customerIndex === i) {
+            bubbleContent = `<div class="order-bubble" style="font-weight:800; color:var(--sp-orange-dark);">
+              <span style="font-size:18px;">${activeTask.countNeeded}x</span>
+              <div class="order-item-icon">${activeTask.targetFood.svg}</div>
+            </div>`;
+          }
+        }
+
+        unit.innerHTML = `
+          ${bubbleContent}
+          <div class="customer-chibi" id="chibi-customer-${i}">
+            ${renderCustomerChibiSVG(i, 'normal')}
+          </div>
+          <div class="table-object">
+            ${renderTableSurfaceSVG()}
+            <div class="table-plate-dropzone" id="table-dropzone-${i}" data-drop-index="${i}"></div>
+          </div>
+        `;
+
+        unit.addEventListener('click', () => {
+          handleCustomerTap(i);
+        });
+
+        custContainer.appendChild(unit);
+      }
+
+      // Render Interactive Tray Items
+      if (activeTask.type === 'E') {
+        activeTask.options.forEach((opt) => {
+          const comboCard = document.createElement('div');
+          comboCard.className = 'food-item-interactive';
+          comboCard.style.width = 'auto';
+          comboCard.style.padding = '8px 16px';
+          comboCard.style.gap = '8px';
+          comboCard.innerHTML = `
+            <div style="display:flex; gap:8px; align-items:center;">
+              <div class="food-svg-wrap" style="width:48px; height:48px;">${opt.foods[0].svg}</div>
+              <div class="food-svg-wrap" style="width:48px; height:48px;">${opt.foods[1].svg}</div>
+            </div>
+            <div class="food-item-name">
+              ${currentLang === 'ms' ? opt.foods[0].ms + ' + ' + opt.foods[1].ms : opt.foods[0].en + ' + ' + opt.foods[1].en}
+            </div>
+          `;
+          comboCard.addEventListener('click', () => {
+            if (isTransitioning) return;
+            if (opt.correct) {
+              handleCorrectAnswer(comboCard, activeTask.customerIndex);
+            } else {
+              handleWrongAnswer(comboCard);
+            }
+          });
+          trayContainer.appendChild(comboCard);
+        });
+      } else {
+        const foodsToDisplay = activeTask.trayFoods || [activeTask.targetFood];
+        foodsToDisplay.forEach((f) => {
+          const foodEl = document.createElement('div');
+          foodEl.className = 'food-item-interactive';
+          foodEl.dataset.foodId = f.id;
+          const foodName = currentLang === 'ms' ? f.ms : f.en;
+          
+          foodEl.innerHTML = `
+            <div class="food-svg-wrap">${f.svg}</div>
+            <div class="food-item-name">${foodName}</div>
+          `;
+
+          attachFoodDragListeners(foodEl, f);
+          trayContainer.appendChild(foodEl);
+        });
+      }
+    }
+
+    function attachFoodDragListeners(element, foodData) {
+      let isPointerDown = false;
+      let hasDragged = false;
+      let startX = 0, startY = 0;
+      const ghost = document.getElementById('drag-ghost');
+
+      const onPointerDown = (e) => {
+        if (isTransitioning) return;
+        isPointerDown = true;
+        hasDragged = false;
+        startX = e.clientX;
+        startY = e.clientY;
+        currentDragFoodId = foodData.id;
+
+        try {
+          element.setPointerCapture(e.pointerId);
+        } catch (err) {}
+      };
+
+      const onPointerMove = (e) => {
+        if (!isPointerDown || isTransitioning) return;
+
+        const dist = Math.hypot(e.clientX - startX, e.clientY - startY);
+        if (!hasDragged && dist > 7) {
+          hasDragged = true;
+          ghost.innerHTML = foodData.svg;
+          ghost.style.display = 'block';
+          element.style.opacity = '0.35';
+        }
+
+        if (hasDragged) {
+          ghost.style.left = `${e.clientX}px`;
+          ghost.style.top = `${e.clientY}px`;
+
+          document.querySelectorAll('.customer-table-unit').forEach(unit => {
+            const uRect = unit.getBoundingClientRect();
+            const pad = 20;
+            if (
+              e.clientX >= uRect.left - pad && e.clientX <= uRect.right + pad &&
+              e.clientY >= uRect.top - pad && e.clientY <= uRect.bottom + pad
+            ) {
+              unit.classList.add('drag-target-hover');
+            } else {
+              unit.classList.remove('drag-target-hover');
+            }
+          });
+        }
+      };
+
+      const onPointerUp = (e) => {
+        if (!isPointerDown) return;
+        isPointerDown = false;
+        ghost.style.display = 'none';
+        element.style.opacity = '1';
+
+        try {
+          element.releasePointerCapture(e.pointerId);
+        } catch (err) {}
+
+        let droppedCustomerIndex = -1;
+        document.querySelectorAll('.customer-table-unit').forEach(unit => {
+          const uRect = unit.getBoundingClientRect();
+          const pad = 25;
+          if (
+            e.clientX >= uRect.left - pad && e.clientX <= uRect.right + pad &&
+            e.clientY >= uRect.top - pad && e.clientY <= uRect.bottom + pad
+          ) {
+            droppedCustomerIndex = parseInt(unit.dataset.customerIndex, 10);
+          }
+          unit.classList.remove('drag-target-hover');
+        });
+
+        if (isTransitioning) return;
+
+        if (hasDragged) {
+          if (droppedCustomerIndex >= 0) {
+            handleDropOnTable(foodData, droppedCustomerIndex, element);
+          }
+        } else {
+          handleFoodDirectTap(foodData, element);
+        }
+      };
+
+      const onPointerCancel = () => {
+        isPointerDown = false;
+        hasDragged = false;
+        ghost.style.display = 'none';
+        element.style.opacity = '1';
+        document.querySelectorAll('.customer-table-unit').forEach(u => u.classList.remove('drag-target-hover'));
+      };
+
+      element.addEventListener('pointerdown', onPointerDown);
+      element.addEventListener('pointermove', onPointerMove);
+      element.addEventListener('pointerup', onPointerUp);
+      element.addEventListener('pointercancel', onPointerCancel);
+    }
+
+    function handleDropOnTable(foodData, tableIndex, foodElement) {
+      if (!activeTask || isTransitioning) return;
+
+      if (activeTask.type === 'B') {
+        if (tableIndex === activeTask.customerIndex && foodData.id === activeTask.targetFood.id) {
+          handleCorrectAnswer(foodElement, tableIndex);
+        } else {
+          handleWrongAnswer(foodElement);
+        }
+      } else if (activeTask.type === 'C') {
+        const match = activeTask.customersOrder.find(o => o.custIdx === tableIndex);
+        if (match && match.food.id === foodData.id) {
+          const dropzone = document.getElementById(`table-dropzone-${tableIndex}`);
+          if (dropzone) {
+            dropzone.innerHTML = `<div style="width:36px; height:36px;">${foodData.svg}</div>`;
+          }
+          foodElement.style.visibility = 'hidden';
+          activeTask.matchedCount++;
+          playTone('correct');
+
+          const chibi = document.getElementById(`chibi-customer-${tableIndex}`);
+          if (chibi) {
+            chibi.innerHTML = renderCustomerChibiSVG(tableIndex, 'happy');
+            chibi.style.transform = 'scale(1.1) translateY(-4px)';
+            setTimeout(() => chibi.style.transform = 'none', 500);
+          }
+
+          if (activeTask.matchedCount >= 3) {
+            handleTaskCompleted();
+          }
+        } else {
+          handleWrongAnswer(foodElement);
+        }
+      } else if (activeTask.type === 'F') {
+        if (tableIndex === activeTask.customerIndex && foodData.id === activeTask.targetFood.id) {
+          activeTask.currentCount++;
+          playTone('tap');
+          foodElement.style.visibility = 'hidden';
+
+          const dropzone = document.getElementById(`table-dropzone-${tableIndex}`);
+          if (dropzone) {
+            dropzone.innerHTML = `<div style="display:flex; gap:3px; font-weight:800; color:var(--sp-orange); font-size:15px; align-items:center;">
+              ${activeTask.currentCount}x
+              <div style="width:30px; height:30px;">${foodData.svg}</div>
+            </div>`;
+          }
+
+          if (activeTask.currentCount >= activeTask.countNeeded) {
+            handleCorrectAnswer(foodElement, tableIndex);
+          }
+        } else {
+          handleWrongAnswer(foodElement);
+        }
+      } else {
+        if (tableIndex === activeTask.customerIndex && foodData.id === (activeTask.targetFood ? activeTask.targetFood.id : null)) {
+          handleCorrectAnswer(foodElement, tableIndex);
+        } else {
+          handleWrongAnswer(foodElement);
+        }
+      }
+    }
+
+    function handleFoodDirectTap(foodData, element) {
+      if (!activeTask || isTransitioning) return;
+
+      if (activeTask.type === 'A') {
+        if (foodData.id === activeTask.targetFood.id) {
+          handleCorrectAnswer(element, activeTask.customerIndex);
+        } else {
+          handleWrongAnswer(element);
+        }
+      } else if (activeTask.type === 'C') {
+        const targetOrder = activeTask.customersOrder.find(o => o.food.id === foodData.id);
+        if (targetOrder) {
+          handleDropOnTable(foodData, targetOrder.custIdx, element);
+        } else {
+          handleWrongAnswer(element);
+        }
+      } else if (activeTask.type === 'D') {
+        if (foodData.id === activeTask.targetFood.id) {
+          handleCorrectAnswer(element, activeTask.customerIndex !== undefined ? activeTask.customerIndex : 0);
+        } else {
+          handleWrongAnswer(element);
+        }
+      } else if (activeTask.type === 'B' || activeTask.type === 'F') {
+        if (foodData.id === activeTask.targetFood.id) {
+          handleDropOnTable(foodData, activeTask.customerIndex, element);
+        } else {
+          handleWrongAnswer(element);
+        }
+      }
+    }
+
+    function handleCustomerTap(customerIndex) {
+      playTone('tap');
+      const chibi = document.getElementById(`chibi-customer-${customerIndex}`);
+      if (chibi) {
+        chibi.style.transform = 'translateY(-6px) scale(1.05)';
+        setTimeout(() => {
+          chibi.style.transform = 'none';
+        }, 250);
+      }
+    }
+
+    function showFeedbackToast(isSuccess) {
+      const toast = document.getElementById('feedback-toast');
+      const msg = document.getElementById('feedback-msg');
+      const iconBox = document.getElementById('feedback-icon');
+      const t = i18n[currentLang];
+
+      if (isSuccess) {
+        msg.textContent = t.great;
+        msg.style.color = '#00C69E';
+        iconBox.innerHTML = renderMascotSVG('excited');
+      } else {
+        msg.textContent = t.tryAgain;
+        msg.style.color = '#FD7A39';
+        iconBox.innerHTML = renderMascotSVG('sad');
+      }
+
+      toast.classList.add('show');
+      setTimeout(() => {
+        toast.classList.remove('show');
+      }, 850);
+    }
+
+    function handleCorrectAnswer(sourceElement, targetCustomerIndex) {
+      if (isTransitioning) return;
+      isTransitioning = true;
+
+      playTone('correct');
+      currentScore += 10;
+      correctAnswersInSession++;
+      document.getElementById('game-score-val').textContent = currentScore;
+
+      if (targetCustomerIndex !== undefined) {
+        const chibi = document.getElementById(`chibi-customer-${targetCustomerIndex}`);
+        if (chibi) {
+          chibi.innerHTML = renderCustomerChibiSVG(targetCustomerIndex, 'happy');
+          chibi.style.transform = 'scale(1.1)';
+        }
+        const dropzone = document.getElementById(`table-dropzone-${targetCustomerIndex}`);
+        if (dropzone && activeTask.targetFood) {
+          dropzone.innerHTML = `<div style="width:36px; height:36px;">${activeTask.targetFood.svg}</div>`;
+        }
+      }
+
+      if (sourceElement) {
+        sourceElement.classList.add('celebrate');
+      }
+
+      showFeedbackToast(true);
+
+      setTimeout(() => {
+        handleTaskCompleted();
+      }, 950);
+    }
+
+    function handleWrongAnswer(sourceElement) {
+      if (isTransitioning) return;
+      isTransitioning = true;
+
+      playTone('wrong');
+      if (sourceElement) {
+        sourceElement.classList.add('wobble');
+      }
+      showFeedbackToast(false);
+
+      setTimeout(() => {
+        handleTaskCompleted();
+      }, 900);
+    }
+
+    function handleTaskCompleted() {
+      questionsAnsweredInSession++;
+
+      if (currentSessionGoal !== 999 && questionsAnsweredInSession >= currentSessionGoal) {
+        finishSession();
+      } else {
+        activeTask = generateRandomTask();
+        setupTaskScene();
+      }
+    }
+
+    function finishSession() {
+      const acc = questionsAnsweredInSession > 0 ? Math.round((correctAnswersInSession / questionsAnsweredInSession) * 100) : 100;
+      
+      document.getElementById('res-score-val').textContent = currentScore;
+      document.getElementById('res-answered-val').textContent = questionsAnsweredInSession;
+      document.getElementById('res-correct-val').textContent = correctAnswersInSession;
+      document.getElementById('res-acc-val').textContent = `${acc}%`;
+
+      const prof = loadProfile();
+      prof.gamesPlayed = (prof.gamesPlayed || 0) + 1;
+      prof.questionsAnswered = (prof.questionsAnswered || 0) + questionsAnsweredInSession;
+      prof.correctAnswers = (prof.correctAnswers || 0) + correctAnswersInSession;
+      if (currentScore > (prof.bestScore || 0)) {
+        prof.bestScore = currentScore;
+      }
+      const dateStr = new Date().toLocaleDateString(currentLang === 'ms' ? 'ms-MY' : 'en-US');
+      const actRecord = currentLang === 'ms' 
+        ? `${dateStr}: Selesai ${questionsAnsweredInSession} pesanan (${currentScore} markah)`
+        : `${dateStr}: Completed ${questionsAnsweredInSession} orders (${currentScore} score)`;
+      
+      if (!prof.recentActivity) prof.recentActivity = [];
+      prof.recentActivity.push(actRecord);
+      saveProfile(prof);
+
+      showScreen('screen-result');
+    }
+
+    function startNewSession(questionCount) {
+      currentSessionGoal = questionCount;
+      questionsAnsweredInSession = 0;
+      correctAnswersInSession = 0;
+      currentScore = 0;
+      isTransitioning = false;
+      document.getElementById('game-score-val').textContent = '0';
+      activeTask = generateRandomTask();
+      setupTaskScene();
+      showScreen('screen-gameplay');
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      renderCollectionGrid();
+      setLanguage('ms');
+
+      activeTask = generateRandomTask();
+      setupTaskScene();
+
+      // Top bar actions
+      document.getElementById('nav-home-btn').addEventListener('click', () => {
+        playTone('tap');
+        showScreen('screen-home');
+      });
+
+      document.getElementById('nav-how-btn').addEventListener('click', () => {
+        playTone('tap');
+        showScreen('screen-instructions');
+      });
+
+      document.getElementById('lang-toggle-btn').addEventListener('click', () => {
+        playTone('tap');
+        setLanguage(currentLang === 'ms' ? 'en' : 'ms');
+      });
+
+      // Home Screen Buttons
+      document.getElementById('btn-start-game').addEventListener('click', () => {
+        playTone('tap');
+        showScreen('screen-session');
+      });
+
+      document.getElementById('btn-nav-profile').addEventListener('click', () => {
+        playTone('tap');
+        updateProfileStatsUI();
+        showScreen('screen-profile');
+      });
+
+      document.getElementById('btn-nav-collection').addEventListener('click', () => {
+        playTone('tap');
+        showScreen('screen-collection');
+      });
+
+      // Session Pickers
+      document.querySelectorAll('.session-pick-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          playTone('tap');
+          const count = parseInt(btn.dataset.count, 10);
+          startNewSession(count);
+        });
+      });
+
+      document.getElementById('btn-back-from-session').addEventListener('click', () => {
+        playTone('tap');
+        showScreen('screen-home');
+      });
+
+      // Instructions Screen
+      document.getElementById('btn-start-from-how').addEventListener('click', () => {
+        playTone('tap');
+        showScreen('screen-session');
+      });
+
+      const dFood = document.getElementById('demo-food-box');
+      const pizzaDemo = FOOD_ITEMS.find(f => f.id === 'pizza') || FOOD_ITEMS[0];
+      if (dFood && pizzaDemo) dFood.innerHTML = `<div style="width:50px; height:50px;">${pizzaDemo.svg}</div>`;
+      const dTarget = document.getElementById('demo-target-box');
+      if (dTarget) dTarget.innerHTML = `<div style="width:50px; height:50px;">${renderCustomerChibiSVG(0, 'happy')}</div>`;
+
+      // Result screen buttons
+      document.getElementById('btn-play-again').addEventListener('click', () => {
+        playTone('tap');
+        startNewSession(currentSessionGoal);
+      });
+
+      document.getElementById('btn-result-home').addEventListener('click', () => {
+        playTone('tap');
+        showScreen('screen-home');
+      });
+
+      // Close profile / back home shared buttons
+      document.querySelectorAll('.btn-close-profile').forEach(btn => {
+        btn.addEventListener('click', () => {
+          playTone('tap');
+          showScreen('screen-home');
+        });
+      });
+    });
+  </script>
+</body>
+</html>
